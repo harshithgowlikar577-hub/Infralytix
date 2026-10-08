@@ -1,8 +1,0 @@
-REC1001|admin|2026-09-15 14:30|Java Technical|Medium|82|5|4|Exception Handling
-REC1002|admin|2026-09-16 11:15|DBMS Technical|Hard|74|5|3|Indexing; Concurrency Control
-REC1003|admin|2026-09-17 16:45|Mixed Interview|Adaptive|88|6|5|DBMS Normalization
-REC1004|student|2026-09-16 09:20|HR Round|Easy|90|5|5|None
-REC1005|student|2026-09-17 10:00|Java Technical|Medium|68|5|3|Collections; Polymorphism
-RECE6F491|admin|2026-09-18 13:38|Java Technical Round|Easy|0|3|0|Java (Avg: 0%)
-ASME20066|testuser|2026-09-22 12:54|Java Programming|Adaptive|58|3|2|1|1.75|OOP Concepts (0% accuracy)
-ASM416A71|testuser|2026-09-22 12:58|Java Programming|Adaptive|58|3|2|1|1.75|Java Fundamentals (0% accuracy)

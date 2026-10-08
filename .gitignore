@@ -37,6 +37,9 @@ Thumbs.db
 # Agents / AI config
 .agents/
 
+# Separate Java project
+JAVALABPROJECT/
+
 # Trained models (large binary files)
 backend/trained_models/
 
