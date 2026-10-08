@@ -1,0 +1,776 @@
+@import "tailwindcss";
+
+/* ============================================================
+   INFRALYTIX Enterprise Command Center — National Infrastructure Intelligence Platform
+   Design System: Microsoft Power BI + Linear + Stripe + Notion Quality
+   ============================================================ */
+
+@theme {
+  /* Fonts */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Command Navy Palette (Dark Mode Base) */
+  --color-bg-command: #030B16;
+  --color-bg-primary: #030B16;
+  --color-bg-secondary: #081325;
+  --color-bg-tertiary: #0F1E36;
+  --color-border-subtle: rgba(56, 189, 248, 0.14);
+  --color-border-focus: #38BDF8;
+
+  /* Content Colors */
+  --color-text-primary: #F8FAFC;
+  --color-text-secondary: #94A3B8;
+  --color-text-muted: #64748B;
+
+  /* Brand Accents */
+  --color-brand-primary: #2563EB;
+  --color-brand-cyan: #06B6D4;
+  --color-brand-accent: #38BDF8;
+  --color-brand-glow: rgba(6, 182, 212, 0.15);
+
+  /* 5-Tier Semantic Risk Palette */
+  --color-risk-safe: #10B981;
+  --color-risk-watch: #F59E0B;
+  --color-risk-high: #F97316;
+  --color-risk-veryhigh: #EF4444;
+  --color-risk-critical: #E11D48;
+
+  /* Analytical Badges */
+  --color-badge-observed: #0284C7;
+  --color-badge-predicted: #8B5CF6;
+  --color-badge-scenario: #EC4899;
+}
+
+/* ============================================================
+   Base Setup & Global Resets
+   ============================================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #0B1329;
+  color-scheme: dark;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+body {
+  background-color: #0B1329;
+  color: #F8FAFC;
+  min-height: 100vh;
+  overflow-x: hidden;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+}
+
+/* Reference Card Class for Exact Layout Match */
+.ref-card {
+  background-color: #111C33;
+  border: 1px solid #1E2D4A;
+  border-radius: 1rem;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.25);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html.light .ref-card {
+  background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 4px 12px -2px rgba(0, 0, 0, 0.02) !important;
+}
+
+/* Tabular figures for numbers & telemetry */
+.font-mono,
+.font-mono-data,
+[data-font-mono] {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-feature-settings: 'tnum' on, 'zero' on;
+}
+
+/* ============================================================
+   LIGHT THEME REDESIGN — Modern Government-Grade Enterprise SaaS
+   WCAG AA Compliant (Contrast Ratio >= 4.5:1 for body, >= 3:1 for large text)
+   ============================================================ */
+
+html.light {
+  background-color: #F8FAFC;
+  color: #0F172A;
+  color-scheme: light;
+}
+
+html.light body {
+  background-color: #F8FAFC;
+  color: #0F172A;
+}
+
+/* Light Theme: TopBar */
+html.light header.fixed {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(0, 0, 0, 0.02) !important;
+}
+
+html.light header .text-white,
+html.light header .text-slate-100,
+html.light header .text-slate-200 {
+  color: #0F172A !important;
+}
+
+html.light header .text-slate-300,
+html.light header .text-slate-400 {
+  color: #475569 !important;
+}
+
+html.light header .text-slate-500 {
+  color: #64748B !important;
+}
+
+html.light header input {
+  color: #0F172A !important;
+  background-color: #F1F5F9 !important;
+  border-color: #CBD5E1 !important;
+}
+
+html.light header input::placeholder {
+  color: #94A3B8 !important;
+}
+
+html.light header input:focus {
+  background-color: #FFFFFF !important;
+  border-color: #2563EB !important;
+}
+
+/* Light Theme: Sidebar */
+html.light aside {
+  background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 1px 0 4px rgba(0, 0, 0, 0.03) !important;
+}
+
+html.light aside .text-slate-200,
+html.light aside .text-slate-300 {
+  color: #1E293B !important;
+}
+
+html.light aside .text-slate-400,
+html.light aside .text-slate-500 {
+  color: #64748B !important;
+}
+
+html.light aside a.bg-\[\#1044A3\],
+html.light aside a.active-nav-item {
+  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25) !important;
+}
+
+html.light aside a.bg-\[\#1044A3\] .text-slate-200,
+html.light aside a.bg-\[\#1044A3\] .text-white,
+html.light aside a.active-nav-item .text-white {
+  color: #FFFFFF !important;
+}
+
+html.light aside a.bg-\[\#1044A3\] .text-blue-200,
+html.light aside a.active-nav-item .text-blue-200 {
+  color: #DBEAFE !important;
+}
+
+html.light aside a:hover:not(.bg-\[\#1044A3\]):not(.active-nav-item) {
+  background-color: #F1F5F9 !important;
+  color: #0F172A !important;
+}
+
+html.light aside .border-\[\#14233D\] {
+  border-color: #E2E8F0 !important;
+}
+
+html.light aside .bg-\[\#091529\] {
+  background-color: #F8FAFC !important;
+  border-color: #E2E8F0 !important;
+}
+
+/* Light Theme: Main Content Area */
+html.light main {
+  background-color: #F8FAFC !important;
+}
+
+/* Light Theme: Cards & Surfaces */
+html.light .glass-card,
+html.light .card-elevated,
+html.light .bg-\[\#091529\],
+html.light .bg-\[\#081324\],
+html.light .bg-\[\#081325\],
+html.light .bg-\[\#050D1A\],
+html.light .bg-\[\#040C1A\],
+html.light .bg-\[\#030B16\],
+html.light .bg-\[\#0A162B\],
+html.light .bg-slate-900,
+html.light .bg-slate-950 {
+  background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 8px 24px -4px rgba(0, 0, 0, 0.03) !important;
+}
+
+html.light .glass-card:hover,
+html.light .card-elevated:hover {
+  border-color: #CBD5E1 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 16px 28px -6px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Nested sub-card surfaces in light mode */
+html.light .bg-\[\#050D1A\],
+html.light .bg-slate-800 {
+  background-color: #F8FAFC !important;
+}
+
+html.light [class*="bg-slate-900/"],
+html.light [class*="bg-slate-950/"],
+html.light [class*="bg-slate-800/"] {
+  background-color: #F8FAFC !important;
+  border-color: #E2E8F0 !important;
+}
+
+/* Borders in light mode */
+html.light .border-\[\#14233D\],
+html.light .border-\[\#1E3354\],
+html.light .border-\[\#2A4877\],
+html.light .border-slate-800,
+html.light .border-slate-700,
+html.light [class*="border-slate-800/"],
+html.light [class*="border-slate-700/"] {
+  border-color: #E2E8F0 !important;
+}
+
+/* Light Mode Tinted Alert/Action Banners */
+html.light [class*="bg-rose-950/"],
+html.light [class*="bg-rose-900/"],
+html.light .bg-\[\#4C0519\] {
+  background-color: #FEF2F2 !important;
+  border-color: #FECACA !important;
+}
+
+html.light [class*="bg-amber-950/"],
+html.light [class*="bg-amber-900/"],
+html.light .bg-\[\#451A03\] {
+  background-color: #FFFBEB !important;
+  border-color: #FDE68A !important;
+}
+
+html.light [class*="bg-emerald-950/"],
+html.light [class*="bg-emerald-900/"],
+html.light .bg-\[\#042F2E\] {
+  background-color: #ECFDF5 !important;
+  border-color: #A7F3D0 !important;
+}
+
+html.light [class*="bg-indigo-950/"],
+html.light [class*="bg-indigo-900/"],
+html.light [class*="bg-purple-950/"],
+html.light .bg-\[\#1E1B4B\] {
+  background-color: #F5F3FF !important;
+  border-color: #DDD6FE !important;
+}
+
+/* Light Theme Typography & High Contrast */
+html.light .text-white,
+html.light .text-slate-100 {
+  color: #0F172A !important;
+}
+
+html.light .text-slate-200 {
+  color: #1E293B !important;
+}
+
+html.light .text-slate-300 {
+  color: #334155 !important;
+}
+
+html.light .text-slate-400 {
+  color: #475569 !important;
+}
+
+html.light .text-slate-500 {
+  color: #64748B !important;
+}
+
+html.light .text-slate-600 {
+  color: #64748B !important;
+}
+
+/* High Contrast Status Colors in Light Mode */
+html.light .text-rose-400,
+html.light .text-rose-300,
+html.light .text-\[\#EF4444\],
+html.light .text-\[\#FB7185\] {
+  color: #B91C1C !important;
+}
+
+html.light .text-amber-400,
+html.light .text-amber-300,
+html.light .text-\[\#F59E0B\],
+html.light .text-\[\#FBBF24\] {
+  color: #B45309 !important;
+}
+
+html.light .text-emerald-400,
+html.light .text-emerald-300,
+html.light .text-\[\#10B981\],
+html.light .text-\[\#2DD4BF\] {
+  color: #047857 !important;
+}
+
+html.light .text-blue-400,
+html.light .text-blue-300,
+html.light .text-\[\#38BDF8\] {
+  color: #1D4ED8 !important;
+}
+
+html.light .text-indigo-400,
+html.light .text-indigo-300,
+html.light .text-\[\#818CF8\] {
+  color: #4338CA !important;
+}
+
+html.light .text-purple-400,
+html.light .text-purple-300 {
+  color: #6D28D9 !important;
+}
+
+/* Light Mode: Tables */
+html.light table {
+  background-color: #FFFFFF !important;
+}
+
+html.light thead tr,
+html.light th {
+  background-color: #F8FAFC !important;
+  color: #475569 !important;
+  border-color: #E2E8F0 !important;
+}
+
+html.light tbody tr {
+  border-color: #F1F5F9 !important;
+}
+
+html.light tbody tr:hover td {
+  background-color: #F8FAFC !important;
+}
+
+html.light td {
+  color: #1E293B !important;
+  border-color: #F1F5F9 !important;
+}
+
+/* Light Mode: Modals & Dropdowns */
+html.light .bg-\[\#091529\].absolute,
+html.light .bg-\[\#081324\],
+html.light .bg-\[\#050D1A\].absolute {
+  background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Light Mode: Inputs & Selects */
+html.light select,
+html.light input[type="text"],
+html.light input[type="email"],
+html.light input[type="password"],
+html.light input[type="search"] {
+  background-color: #FFFFFF !important;
+  border-color: #CBD5E1 !important;
+  color: #0F172A !important;
+}
+
+html.light select:focus,
+html.light input:focus {
+  border-color: #2563EB !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+}
+
+/* Light Mode: Footer */
+html.light footer {
+  background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+}
+
+html.light footer .text-slate-400 {
+  color: #64748B !important;
+}
+
+html.light footer .text-slate-500 {
+  color: #94A3B8 !important;
+}
+
+html.light footer .text-slate-300 {
+  color: #475569 !important;
+}
+
+/* ============================================================
+   DARK THEME & GLASSMORPHISM — Mission Control Quality
+   ============================================================ */
+
+.glass-card {
+  background: rgba(8, 19, 37, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(56, 189, 248, 0.12);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  border-color: rgba(56, 189, 248, 0.28);
+  box-shadow: 0 8px 32px rgba(6, 182, 212, 0.12), 0 0 0 1px rgba(56, 189, 248, 0.2);
+  transform: translateY(-2px);
+}
+
+.card-elevated {
+  background: #081325;
+  border: 1px solid #14233D;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-elevated:hover {
+  border-color: #1E3354;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  transform: translateY(-2px);
+}
+
+/* Mission Control Glowing Accents */
+.glow-cyan {
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.22);
+}
+
+.glow-blue {
+  box-shadow: 0 0 20px rgba(37, 99, 235, 0.22);
+}
+
+.glow-emerald {
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.22);
+}
+
+.glow-amber {
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.22);
+}
+
+.glow-rose {
+  box-shadow: 0 0 20px rgba(225, 29, 72, 0.22);
+}
+
+.text-glow-cyan {
+  text-shadow: 0 0 12px rgba(6, 182, 212, 0.45);
+}
+
+/* ============================================================
+   Micro Interactions & Interactive States
+   ============================================================ */
+
+/* Button Hover Lift */
+button:not(:disabled),
+.interactive-btn {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+button:not(:disabled):hover,
+.interactive-btn:hover {
+  transform: translateY(-1px);
+}
+
+button:not(:disabled):active,
+.interactive-btn:active {
+  transform: translateY(0);
+}
+
+/* Accessibility Focus Ring */
+:focus-visible {
+  outline: 2px solid #38BDF8;
+  outline-offset: 2px;
+}
+
+/* ============================================================
+   Shimmer Skeleton Animation
+   ============================================================ */
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(8, 19, 37, 0.8) 25%,
+    rgba(15, 30, 54, 0.95) 50%,
+    rgba(8, 19, 37, 0.8) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+html.light .skeleton {
+  background: linear-gradient(
+    90deg,
+    #E2E8F0 25%,
+    #CBD5E1 50%,
+    #E2E8F0 75%
+  ) !important;
+  background-size: 200% 100% !important;
+}
+
+/* Pulse Animation for Critical Alerts */
+@keyframes pulse-risk {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+.pulse-critical {
+  animation: pulse-risk 2s ease-in-out infinite;
+}
+
+/* Radar Sweep Animation */
+@keyframes radar-sweep {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.animate-radar-sweep {
+  animation: radar-sweep 6s linear infinite;
+  transform-origin: center center;
+}
+
+/* ============================================================
+   National Emblem & India Tricolor Accent Stripe
+   ============================================================ */
+
+.tricolor-stripe {
+  height: 3px;
+  background: linear-gradient(90deg, #FF9933 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #138808 66.6%);
+  border-radius: 9999px;
+}
+
+/* ============================================================
+   Scrollbar Styling
+   ============================================================ */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.2);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.4);
+}
+
+html.light ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html.light ::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.25);
+}
+
+html.light ::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.45);
+}
+
+/* ============================================================
+   Command Center Reference Card System & Subtle Animations
+   ============================================================ */
+.ref-card {
+  background-color: #0C172C;
+  border: 1px solid #162744;
+  border-radius: 1rem;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ref-card:hover {
+  border-color: #203A66;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px -4px rgba(0, 0, 0, 0.3);
+}
+
+html.light .ref-card {
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+html.light .ref-card:hover {
+  border-color: #CBD5E1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Unified Table System */
+.table-sticky-header th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.table-row-hover tr {
+  transition: background-color 0.15s ease;
+}
+
+/* ============================================================
+   PRINT VIEW ENGINE — A4 Government Standard
+   Clean margins, printable colors, no cut-off tables, page breaks
+   ============================================================ */
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm 14mm 14mm 14mm;
+  }
+
+  /* Reset layout constraints & hide non-printable chrome */
+  html, body {
+    background: #FFFFFF !important;
+    color: #0F172A !important;
+    font-size: 10pt !important;
+    line-height: 1.4 !important;
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  aside,
+  header,
+  nav,
+  button,
+  .no-print,
+  [role="dialog"],
+  .fixed,
+  .sticky {
+    display: none !important;
+  }
+
+  /* Expand main container to full A4 page width */
+  main,
+  .main-canvas,
+  div[class*="overflow-y-auto"],
+  div[class*="overflow-hidden"] {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Convert dark surfaces into high-contrast print surfaces */
+  .glass-card,
+  .ref-card,
+  .card-elevated,
+  div[class*="bg-[#050D1A]"],
+  div[class*="bg-[#091529]"],
+  div[class*="bg-[#0C172C]"],
+  div[class*="bg-slate-900"] {
+    background: #FFFFFF !important;
+    border: 1px solid #CBD5E1 !important;
+    box-shadow: none !important;
+    color: #0F172A !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    border-radius: 8px !important;
+  }
+
+  /* Table print optimization */
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 8.5pt !important;
+    page-break-inside: auto;
+  }
+
+  thead {
+    display: table-header-group !important;
+  }
+
+  tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  th {
+    background-color: #F1F5F9 !important;
+    color: #0F172A !important;
+    border-bottom: 2px solid #94A3B8 !important;
+    font-weight: 700 !important;
+    padding: 6px 8px !important;
+    text-transform: uppercase !important;
+    font-size: 7.5pt !important;
+  }
+
+  td {
+    border-bottom: 1px solid #E2E8F0 !important;
+    color: #1E293B !important;
+    padding: 6px 8px !important;
+  }
+
+  /* Print typography and contrast */
+  h1, h2, h3, h4 {
+    color: #0F172A !important;
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  p, span, div {
+    color: #334155 !important;
+  }
+
+  .text-white,
+  .text-slate-100,
+  .text-slate-200 {
+    color: #0F172A !important;
+  }
+
+  .text-slate-400,
+  .text-slate-500 {
+    color: #475569 !important;
+  }
+
+  /* Retain semantic status colors in print */
+  .text-rose-400, .text-rose-500 { color: #DC2626 !important; }
+  .text-amber-400, .text-amber-500 { color: #D97706 !important; }
+  .text-emerald-400, .text-emerald-500 { color: #059669 !important; }
+  .text-blue-400, .text-blue-500 { color: #2563EB !important; }
+  .text-cyan-400 { color: #0891B2 !important; }
+
+  /* Page break utility classes */
+  .page-break {
+    page-break-after: always !important;
+    break-after: page !important;
+  }
+
+  .page-break-before {
+    page-break-before: always !important;
+    break-before: page !important;
+  }
+
+  .avoid-break {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+}
+

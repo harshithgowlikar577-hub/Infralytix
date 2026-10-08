@@ -1,0 +1,44 @@
+# Database files
+*.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+*.egg
+.venv/
+venv/
+env/
+.pytest_cache/
+
+# Node / Frontend
+node_modules/
+dist/
+.cache/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Agents / AI config
+.agents/
+
+# Trained models (large binary files)
+backend/trained_models/
+
+# Uploads
+backend/uploads/

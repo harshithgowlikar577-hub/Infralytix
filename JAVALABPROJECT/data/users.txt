@@ -1,0 +1,4 @@
+priya|priya123|Priya Verma|23EC088|Electronics and Communication|0|Beginner|1|2026-09-22|
+student|pass123|Rahul Sharma|23CS142|Information Technology|0|Beginner|1|2026-09-22|
+admin|admin123|Harsh Vardhan|23CS101|Computer Science and Engineering|0|Beginner|1|2026-09-22|
+testuser|pass|Test Candidate|23CS999|CSE|38|Beginner|1|2026-09-22|

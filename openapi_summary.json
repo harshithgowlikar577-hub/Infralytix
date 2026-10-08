@@ -1,0 +1,222 @@
+{
+  "POST /api/v1/auth/register": {
+    "summary": "Register User",
+    "response_schema": {}
+  },
+  "POST /api/v1/auth/login": {
+    "summary": "Login User",
+    "response_schema": {
+      "$ref": "#/components/schemas/TokenResponse"
+    }
+  },
+  "POST /api/v1/auth/refresh": {
+    "summary": "Refresh Token",
+    "response_schema": {
+      "$ref": "#/components/schemas/TokenResponse"
+    }
+  },
+  "GET /api/v1/auth/me": {
+    "summary": "Get Current User Profile",
+    "response_schema": {
+      "$ref": "#/components/schemas/UserOut"
+    }
+  },
+  "GET /api/v1/projects": {
+    "summary": "List Projects",
+    "response_schema": {
+      "$ref": "#/components/schemas/ProjectListResponse"
+    }
+  },
+  "POST /api/v1/projects": {
+    "summary": "Create Project",
+    "response_schema": {}
+  },
+  "GET /api/v1/projects/{project_id}": {
+    "summary": "Get Project Detail",
+    "response_schema": {
+      "$ref": "#/components/schemas/ProjectOut"
+    }
+  },
+  "PUT /api/v1/projects/{project_id}": {
+    "summary": "Update Project",
+    "response_schema": {
+      "$ref": "#/components/schemas/ProjectOut"
+    }
+  },
+  "DELETE /api/v1/projects/{project_id}": {
+    "summary": "Delete Project",
+    "response_schema": {}
+  },
+  "POST /api/v1/ingestion/upload": {
+    "summary": "Upload Dataset Csv",
+    "response_schema": {
+      "$ref": "#/components/schemas/IngestionUploadResponse"
+    }
+  },
+  "POST /api/v1/ingestion/upload/milestones": {
+    "summary": "Upload Milestones Csv",
+    "response_schema": {
+      "$ref": "#/components/schemas/IngestionUploadResponse"
+    }
+  },
+  "POST /api/v1/ingestion/upload/observations": {
+    "summary": "Upload Observations Csv",
+    "response_schema": {
+      "$ref": "#/components/schemas/IngestionUploadResponse"
+    }
+  },
+  "POST /api/v1/ingestion/upload/dependencies": {
+    "summary": "Upload Dependencies Csv",
+    "response_schema": {
+      "$ref": "#/components/schemas/IngestionUploadResponse"
+    }
+  },
+  "GET /api/v1/ingestion/report/{dataset_id}": {
+    "summary": "Get Ingestion Report",
+    "response_schema": {
+      "$ref": "#/components/schemas/ValidationReportResponse"
+    }
+  },
+  "GET /api/v1/analytics/health/{project_id}": {
+    "summary": "Get Project Health Score",
+    "response_schema": {
+      "$ref": "#/components/schemas/HealthScoreResponse"
+    }
+  },
+  "POST /api/v1/ml/cost/predict": {
+    "summary": "Predict Project Cost Overrun",
+    "response_schema": {
+      "$ref": "#/components/schemas/CostPredictionResponse"
+    }
+  },
+  "POST /api/v1/ml/cost/train": {
+    "summary": "Train Cost Prediction Model",
+    "response_schema": {
+      "$ref": "#/components/schemas/ModelTrainResponse"
+    }
+  },
+  "POST /api/v1/ml/delay/predict": {
+    "summary": "Predict Project Schedule Delay",
+    "response_schema": {
+      "$ref": "#/components/schemas/DelayPredictionResponse"
+    }
+  },
+  "POST /api/v1/ml/delay/train": {
+    "summary": "Train Delay Prediction Model",
+    "response_schema": {
+      "$ref": "#/components/schemas/ModelTrainResponse"
+    }
+  },
+  "GET /api/v1/risk/{project_id}": {
+    "summary": "Get Project Risk Profile",
+    "response_schema": {
+      "$ref": "#/components/schemas/RiskResponse"
+    }
+  },
+  "GET /api/v1/similarity/{project_id}": {
+    "summary": "Get Similar Projects And Failure Dna",
+    "response_schema": {
+      "$ref": "#/components/schemas/SimilarityResponse"
+    }
+  },
+  "GET /api/v1/intervention/{project_id}": {
+    "summary": "Get Intervention Recommendations",
+    "response_schema": {
+      "$ref": "#/components/schemas/InterventionResponse"
+    }
+  },
+  "POST /api/v1/intervention/execute": {
+    "summary": "Record Executed Intervention",
+    "response_schema": {}
+  },
+  "GET /api/v1/warning/{project_id}": {
+    "summary": "Get Project Early Warnings",
+    "response_schema": {
+      "$ref": "#/components/schemas/EarlyWarningResponse"
+    }
+  },
+  "POST /api/v1/simulation/run": {
+    "summary": "Run What If Simulation",
+    "response_schema": {
+      "$ref": "#/components/schemas/SimulationResponse"
+    }
+  },
+  "GET /api/v1/analytics/dashboard": {
+    "summary": "Get Dashboard Summary Analytics",
+    "response_schema": {
+      "$ref": "#/components/schemas/DashboardAnalyticsResponse"
+    }
+  },
+  "GET /api/v1/analytics/ministry": {
+    "summary": "Get Ministry Level Analytics",
+    "response_schema": {
+      "$ref": "#/components/schemas/MinistryAnalyticsResponse"
+    }
+  },
+  "GET /api/v1/analytics/state": {
+    "summary": "Get State Level Analytics",
+    "response_schema": {
+      "$ref": "#/components/schemas/StateAnalyticsResponse"
+    }
+  },
+  "GET /api/v1/analytics/sector": {
+    "summary": "Get Sector Level Analytics",
+    "response_schema": {
+      "$ref": "#/components/schemas/SectorAnalyticsResponse"
+    }
+  },
+  "GET /api/v1/analytics/risk": {
+    "summary": "Get Risk Portfolio Analytics",
+    "response_schema": {
+      "$ref": "#/components/schemas/RiskAnalyticsResponse"
+    }
+  },
+  "GET /api/v1/notifications": {
+    "summary": "List My Notifications",
+    "response_schema": {}
+  },
+  "PUT /api/v1/notifications/{notification_id}/read": {
+    "summary": "Mark Notification Read",
+    "response_schema": {}
+  },
+  "PUT /api/v1/notifications/read-all": {
+    "summary": "Mark All Notifications Read",
+    "response_schema": {}
+  },
+  "DELETE /api/v1/notifications/{notification_id}": {
+    "summary": "Dismiss Notification",
+    "response_schema": {}
+  },
+  "POST /api/v1/ml/train/cost": {
+    "summary": "Train Cost Prediction Model",
+    "response_schema": {
+      "$ref": "#/components/schemas/ModelTrainResponse"
+    }
+  },
+  "POST /api/v1/ml/train/delay": {
+    "summary": "Train Delay Prediction Model",
+    "response_schema": {
+      "$ref": "#/components/schemas/ModelTrainResponse"
+    }
+  },
+  "GET /api/v1/ml/status": {
+    "summary": "Get Ml Model Status",
+    "response_schema": {}
+  },
+  "GET /api/v1/scheduler/status": {
+    "summary": "Scheduler Status",
+    "response_schema": {}
+  },
+  "POST /api/v1/scheduler/trigger/{job_id}": {
+    "summary": "Trigger Job",
+    "response_schema": {}
+  },
+  "GET /": {
+    "summary": "Root Status",
+    "response_schema": {}
+  },
+  "GET /health": {
+    "summary": "Health Check",
+    "response_schema": {}
+  }
+}
