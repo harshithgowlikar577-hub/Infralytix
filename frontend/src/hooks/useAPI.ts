@@ -138,6 +138,17 @@ export function useSimulation() {
   });
 }
 
+export function useSimulationExplain() {
+  return useMutation({
+    mutationFn: (data: {
+      project_id: string; manpower_boost_pct?: number;
+      budget_increase_pct?: number; procurement_delay_removed?: boolean;
+      milestones_expedited_count?: number; efficiency_gain_pct?: number;
+    }) => simulationAPI.explain(data).then(r => r.data),
+  });
+}
+
+
 // ===================== ML MODELS =====================
 export function useMLStatus() {
   return useQuery({

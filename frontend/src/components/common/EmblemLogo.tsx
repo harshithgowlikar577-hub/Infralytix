@@ -19,7 +19,7 @@ export default function EmblemLogo({ className = '' }: { className?: string }) {
           <span className="font-extrabold tracking-tight text-base sm:text-lg leading-none text-slate-900 dark:text-white font-sans">
             INFRALYTIX
           </span>
-          <span className="text-sm leading-none" title="Government of India">
+          <span className="text-sm leading-none" title="Government of India" aria-label="Government of India">
             🇮🇳
           </span>
         </div>

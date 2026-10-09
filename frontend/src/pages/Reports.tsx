@@ -900,10 +900,10 @@ export default function Reports() {
             <FileText className="w-3.5 h-3.5" />
             <span>Statutory Governance Documentation</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white flex items-center gap-3">
-            <span>Executive Reports & Cabinet Briefings</span>
+          <h1 className="text-3xl sm:text-[36px] font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-3">
+            <span>Executive Reports &amp; Cabinet Briefings</span>
           </h1>
-          <p className="text-sm text-slate-400 mt-1 max-w-3xl leading-relaxed">
+          <p className="text-[15px] text-slate-500 dark:text-slate-400 mt-1 max-w-3xl leading-relaxed">
             Official ministerial report generation engine producing high-fidelity intelligence dossiers formatted for parliamentary review, cabinet audits, and state coordination meetings.
           </p>
         </div>
@@ -1004,7 +1004,7 @@ export default function Reports() {
                 <div
                   key={tmpl.id}
                   onClick={() => setSelectedTemplate(tmpl)}
-                  className={`p-4 rounded-2xl border cursor-pointer transition-all duration-150 ${
+                  className={`p-5 rounded-2xl border cursor-pointer transition-all duration-150 ${
                     isSelected
                       ? 'bg-blue-950/40 border-cyan-500/60 shadow-lg shadow-cyan-500/10 ring-1 ring-cyan-500/30'
                       : 'glass-card border-slate-800/80 hover:border-slate-700 hover:shadow-md'
@@ -1041,7 +1041,7 @@ export default function Reports() {
         {/* Live Document Preview Panel (2 Cols) */}
         <div className="lg:col-span-2 glass-card p-6 rounded-2xl border border-cyan-500/15 space-y-6 shadow-sm">
           {/* Document Header with Logo (Priority 7) */}
-          <div className="p-6 rounded-xl bg-[#040C1A] border border-slate-800 space-y-4 shadow-inner">
+          <div className="p-6 rounded-2xl bg-[#040C1A] border border-slate-800 space-y-4 shadow-inner">
             <div className="flex items-center justify-between border-b border-slate-800 pb-4">
               <div className="flex items-center gap-3.5">
                 {/* Official Logo (Priority 7) */}

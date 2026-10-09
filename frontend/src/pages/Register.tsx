@@ -64,51 +64,61 @@ export default function Register() {
           </div>
 
           {error && (
-            <div className="mb-5 p-3.5 rounded-xl bg-red-500/8 border border-red-500/20 text-red-400 text-sm">{error}</div>
+            <div role="alert" className="mb-5 p-3.5 rounded-xl bg-red-500/8 border border-red-500/20 text-red-400 text-sm">{error}</div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Full Name</label>
-              <input type="text" value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} required
-                placeholder="Dr. Rajesh Kumar"
+              <label htmlFor="reg-name" className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Full Name</label>
+              <input id="reg-name" type="text" value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} required
+                placeholder="Dr. Rajesh Kumar" autoComplete="name" aria-label="Full name"
                 className="w-full px-4 py-3 rounded-xl bg-slate-800/60 border border-slate-700/80 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 shadow-inner" />
             </div>
             <div>
-              <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Email Address</label>
-              <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required
-                placeholder="officer@gov.in"
+              <label htmlFor="reg-email" className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Email Address</label>
+              <input id="reg-email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required
+                placeholder="officer@gov.in" autoComplete="email" aria-label="Email address"
                 className="w-full px-4 py-3 rounded-xl bg-slate-800/60 border border-slate-700/80 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 shadow-inner" />
             </div>
             <div>
-              <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Password</label>
+              <label htmlFor="reg-password" className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Password</label>
               <div className="relative">
-                <input type={showPassword ? 'text' : 'password'} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required
-                  placeholder="Min 6 characters"
+                <input id="reg-password" type={showPassword ? 'text' : 'password'} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required
+                  placeholder="Min 6 characters" autoComplete="new-password" aria-label="Password"
                   className="w-full px-4 py-3 pr-11 rounded-xl bg-slate-800/60 border border-slate-700/80 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 shadow-inner" />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors p-1 rounded-md hover:bg-slate-700/50">
+                <button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? 'Hide password' : 'Show password'} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors p-1 rounded-md hover:bg-slate-700/50">
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
             <div>
-              <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">
+              <label htmlFor="reg-ministry" className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">
                 <span className="flex items-center gap-1.5">
                   <Building2 className="w-3 h-3" /> Ministry (Optional)
                 </span>
               </label>
-              <input type="text" value={form.ministry} onChange={(e) => setForm({ ...form, ministry: e.target.value })}
-                placeholder="Ministry of Road Transport & Highways"
+              <input id="reg-ministry" type="text" value={form.ministry} onChange={(e) => setForm({ ...form, ministry: e.target.value })}
+                placeholder="Ministry of Road Transport & Highways" autoComplete="organization" aria-label="Ministry or organization"
                 className="w-full px-4 py-3 rounded-xl bg-slate-800/60 border border-slate-700/80 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 shadow-inner" />
             </div>
             <div>
-              <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Role</label>
-              <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}
+              <label htmlFor="reg-role" className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Role</label>
+              <select id="reg-role" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} aria-label="Select your role"
                 className="w-full px-4 py-3 rounded-xl bg-slate-800/60 border border-slate-700/80 text-sm text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 appearance-none cursor-pointer">
                 <option value="ProjectManager">Project Manager</option>
                 <option value="MinistryOfficer">Ministry Officer</option>
                 <option value="PublicViewer">Public Viewer</option>
               </select>
+            </div>
+
+            <div className="flex items-start gap-2.5 mt-2">
+              <input type="checkbox" id="reg-consent" required
+                className="mt-1 w-4 h-4 rounded border-slate-600 bg-slate-800 text-blue-500 focus:ring-blue-500/30 cursor-pointer" />
+              <label htmlFor="reg-consent" className="text-[11px] text-slate-400 leading-relaxed cursor-pointer">
+                I agree to the <Link to="/terms" className="text-blue-400 hover:text-blue-300 underline">Terms & Conditions</Link> and
+                acknowledge the <Link to="/privacy" className="text-blue-400 hover:text-blue-300 underline">Privacy Policy</Link> in
+                compliance with the DPDP Act 2023.
+              </label>
             </div>
 
             <button type="submit" disabled={loading}
@@ -123,9 +133,12 @@ export default function Register() {
         </div>
 
         {/* Footer badge */}
-        <div className="text-center mt-6">
+        <div className="text-center mt-6 space-y-1">
           <p className="text-[10px] text-slate-600 tracking-wider uppercase">
-            Secured under National Data Governance Framework • ISO 27001
+            Secured under National Data Governance Framework
+          </p>
+          <p className="text-[9px] text-slate-700">
+            © {new Date().getFullYear()} INFRALYTIX • Government of India Initiative
           </p>
         </div>
       </div>

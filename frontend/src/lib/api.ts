@@ -130,7 +130,12 @@ export const simulationAPI = {
     project_id: string; manpower_boost_pct?: number; budget_increase_pct?: number;
     procurement_delay_removed?: boolean; milestones_expedited_count?: number; efficiency_gain_pct?: number;
   }) => api.post('/simulation/run', data),
+  explain: (data: {
+    project_id: string; manpower_boost_pct?: number; budget_increase_pct?: number;
+    procurement_delay_removed?: boolean; milestones_expedited_count?: number; efficiency_gain_pct?: number;
+  }) => api.post('/simulation/explain', data),
 };
+
 
 // --- Ingestion ---
 export const ingestionAPI = {

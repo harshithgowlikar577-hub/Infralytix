@@ -1,6 +1,12 @@
 # Database files
 *.db
 
+# Security: JWT tokens must never be committed
+token.txt
+*.token
+*.jwt
+
+
 # Python
 __pycache__/
 *.py[cod]

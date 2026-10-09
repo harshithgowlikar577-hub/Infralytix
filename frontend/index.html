@@ -4,15 +4,47 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="INFRALYTIX — AI-Powered National Infrastructure Intelligence Platform. Real-time risk monitoring, predictive governance, and decision support for India's ₹42 lakh crore infrastructure portfolio." />
+    <meta name="description" content="INFRALYTIX — AI-Powered National Infrastructure Intelligence Platform. Real-time risk monitoring, predictive governance, and decision support for India's infrastructure portfolio." />
+    <meta name="theme-color" content="#070E1C" />
+    <meta name="author" content="Team INFRALYTIX — Smart India Hackathon" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta property="og:title" content="INFRALYTIX — National Infrastructure Command Center" />
+    <meta property="og:description" content="Government-grade Infrastructure Monitoring & Decision Intelligence Platform" />
+    <meta property="og:type" content="website" />
     <title>INFRALYTIX — National Infrastructure Command Center</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+      .skip-to-content {
+        position: absolute;
+        left: -9999px;
+        top: 0;
+        z-index: 99999;
+        padding: 8px 16px;
+        background: #2563eb;
+        color: #fff;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        border-radius: 0 0 8px 0;
+      }
+      .skip-to-content:focus {
+        left: 0;
+      }
+    </style>
   </head>
   <body class="antialiased">
+    <a href="#main-content" class="skip-to-content">Skip to main content</a>
     <div id="root"></div>
+    <noscript>
+      <div style="padding:40px;text-align:center;background:#070E1C;color:#94a3b8;min-height:100vh;font-family:sans-serif;">
+        <h1 style="color:#fff;margin-bottom:16px;">INFRALYTIX requires JavaScript</h1>
+        <p>Please enable JavaScript in your browser to use the National Infrastructure Intelligence Platform.</p>
+      </div>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
+

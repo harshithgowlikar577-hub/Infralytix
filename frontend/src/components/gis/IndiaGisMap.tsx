@@ -38,7 +38,7 @@ function normalizeStateName(name: string): string {
   if (n.includes('odisha') || n.includes('orissa')) return 'Odisha';
   if (n.includes('uttarakhand') || n.includes('uttaranchal')) return 'Uttarakhand';
   if (n.includes('andaman')) return 'Andaman & Nicobar Islands';
-  if (n.includes('dadra') || n.includes('daman')) return 'Gujarat';
+  if (n.includes('dadra') || n.includes('daman')) return 'Dadra and Nagar Haveli and Daman and Diu';
   if (n.includes('delhi')) return 'Delhi';
   return name.trim();
 }

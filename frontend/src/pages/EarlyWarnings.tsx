@@ -203,11 +203,11 @@ export default function EarlyWarnings() {
             <span>/</span>
             <span className="text-slate-200">Early Warning Surveillance</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-3">
-            <AlertOctagon className="w-7 h-7 text-rose-500" />
+          <h1 className="text-3xl sm:text-[36px] font-black text-white tracking-tight flex items-center gap-3">
+            <AlertOctagon className="w-8 h-8 text-rose-500" />
             <span>Intelligent Early Warning &amp; Triage Centre</span>
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1">
+          <p className="text-[15px] text-slate-400 mt-1">
             Predictive breach detection, 4-tier ministerial priority triage, and quantified delay/cost recovery pathways
           </p>
         </div>
@@ -255,66 +255,66 @@ export default function EarlyWarnings() {
       </div>
 
       {/* Alert Analytics Summary Strip */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Capex at Risk */}
-        <div className="glass-card p-5 rounded-2xl border border-rose-500/20 bg-rose-950/10 flex items-center gap-4 shadow-lg shadow-rose-950/20">
-          <div className="w-11 h-11 rounded-xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-rose-400 shrink-0">
-            <IndianRupee className="w-5 h-5" />
+        <div className="glass-card p-6 rounded-2xl border border-rose-500/20 bg-rose-950/10 flex items-center gap-4 shadow-lg shadow-rose-950/20">
+          <div className="w-12 h-12 rounded-xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-rose-400 shrink-0">
+            <IndianRupee className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">Total Capex At Risk</div>
+            <div className="text-[11px] text-slate-400 uppercase tracking-wider font-bold">Total Capex At Risk</div>
             <div className="text-xl sm:text-2xl font-black font-mono text-rose-400 mt-0.5">
               {formatCurrency(earlyWarningData.total_capex_at_risk_cr)}
             </div>
-            <div className="text-[10px] text-slate-500 mt-0.5">Across {earlyWarningData.total_alerts} prioritized assets</div>
+            <div className="text-[11px] text-slate-500 mt-0.5">Across {earlyWarningData.total_alerts} prioritized assets</div>
           </div>
         </div>
 
         {/* Escalation Alerts */}
-        <div className="glass-card p-5 rounded-2xl border border-amber-500/20 bg-amber-950/10 flex items-center gap-4 shadow-lg shadow-amber-950/20">
-          <div className="w-11 h-11 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
-            <AlertOctagon className="w-5 h-5" />
+        <div className="glass-card p-6 rounded-2xl border border-amber-500/20 bg-amber-950/10 flex items-center gap-4 shadow-lg shadow-amber-950/20">
+          <div className="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+            <AlertOctagon className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">Cabinet Escalations</div>
+            <div className="text-[11px] text-slate-400 uppercase tracking-wider font-bold">Cabinet Escalations</div>
             <div className="text-xl sm:text-2xl font-black font-mono text-amber-400 mt-0.5">
               {earlyWarningData.escalation_count} <span className="text-xs font-normal text-slate-400">/ 0-48h SLA</span>
             </div>
-            <div className="text-[10px] text-slate-500 mt-0.5">{earlyWarningData.critical_count} critical tier projects</div>
+            <div className="text-[11px] text-slate-500 mt-0.5">{earlyWarningData.critical_count} critical tier projects</div>
           </div>
         </div>
 
         {/* Mean Delay Probability */}
-        <div className="glass-card p-5 rounded-2xl border border-blue-500/20 bg-blue-950/10 flex items-center gap-4 shadow-lg">
-          <div className="w-11 h-11 rounded-xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0">
-            <Clock className="w-5 h-5" />
+        <div className="glass-card p-6 rounded-2xl border border-blue-500/20 bg-blue-950/10 flex items-center gap-4 shadow-lg">
+          <div className="w-12 h-12 rounded-xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0">
+            <Clock className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">Mean Delay Probability</div>
+            <div className="text-[11px] text-slate-400 uppercase tracking-wider font-bold">Mean Delay Probability</div>
             <div className="text-xl sm:text-2xl font-black font-mono text-blue-400 mt-0.5">
               {earlyWarningData.average_delay_probability}%
             </div>
-            <div className="text-[10px] text-slate-500 mt-0.5">ML GradientBoosting forecast</div>
+            <div className="text-[11px] text-slate-500 mt-0.5">ML GradientBoosting forecast</div>
           </div>
         </div>
 
         {/* Mean Cost Escalation Probability */}
-        <div className="glass-card p-5 rounded-2xl border border-purple-500/20 bg-purple-950/10 flex items-center gap-4 shadow-lg">
-          <div className="w-11 h-11 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400 shrink-0">
-            <TrendingUp className="w-5 h-5" />
+        <div className="glass-card p-6 rounded-2xl border border-purple-500/20 bg-purple-950/10 flex items-center gap-4 shadow-lg">
+          <div className="w-12 h-12 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400 shrink-0">
+            <TrendingUp className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">Cost Escalation Risk</div>
+            <div className="text-[11px] text-slate-400 uppercase tracking-wider font-bold">Cost Escalation Risk</div>
             <div className="text-xl sm:text-2xl font-black font-mono text-purple-400 mt-0.5">
               {earlyWarningData.average_cost_escalation_probability}%
             </div>
-            <div className="text-[10px] text-slate-500 mt-0.5">Predicted budget variance &gt;15%</div>
+            <div className="text-[11px] text-slate-500 mt-0.5">Predicted budget variance &gt;15%</div>
           </div>
         </div>
       </div>
 
       {/* Trigger Type Distribution Strip */}
-      <div className="p-3.5 rounded-xl bg-[#071326] border border-[#142642] flex flex-wrap items-center justify-between gap-3 text-xs">
+      <div className="p-5 rounded-2xl bg-[#071326] border border-[#142642] flex flex-wrap items-center justify-between gap-4 text-xs">
         <div className="flex items-center gap-2 text-slate-400 font-semibold">
           <Zap className="w-4 h-4 text-amber-400" />
           <span className="uppercase text-[10px] tracking-wider text-slate-300">Systemic Trigger Telemetry:</span>
@@ -337,9 +337,9 @@ export default function EarlyWarnings() {
       {/* VIEW 1: 4-TIER PRIORITY QUEUES */}
       {/* ========================================================================= */}
       {activeView === 'queues' && (
-        <div className="space-y-6">
+        <div className="space-y-8">
           {/* Priority Queue Selector Tabs */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
               {
                 id: 'escalation' as QueueType,
@@ -402,7 +402,7 @@ export default function EarlyWarnings() {
           </div>
 
           {/* Search and Filters Bar */}
-          <div className="flex flex-col sm:flex-row items-center gap-3 p-3.5 rounded-2xl bg-[#081325] border border-[#142642]">
+          <div className="flex flex-col sm:flex-row items-center gap-4 p-5 rounded-2xl bg-[#081325] border border-[#142642]">
             <div className="relative flex-1 w-full flex items-center">
               <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
@@ -495,7 +495,7 @@ export default function EarlyWarnings() {
               <p className="text-xs text-slate-400 mt-1">Try resetting search filters or selecting another queue.</p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-6">
               {filteredItems.map(item => {
                 const currentStage = alertStages[item.warning_id] || 'DETECTED';
                 const stageCfg = STAGE_CONFIG[currentStage];
@@ -504,7 +504,7 @@ export default function EarlyWarnings() {
                 return (
                   <div
                     key={item.warning_id}
-                    className={`glass-card p-5 rounded-2xl border transition-all ${
+                    className={`glass-card p-6 rounded-2xl border transition-all ${
                       isEscalation
                         ? 'border-rose-500/30 bg-rose-950/10 hover:border-rose-500/50'
                         : item.queue === 'critical'
@@ -658,9 +658,9 @@ export default function EarlyWarnings() {
       {/* VIEW 2: 30/60/90-DAY PREDICTIVE RISK PIPELINE */}
       {/* ========================================================================= */}
       {activeView === 'pipeline' && (
-        <div className="space-y-6">
+        <div className="space-y-8">
           {/* Horizon Selector Tabs */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {(['30_DAYS', '60_DAYS', '90_DAYS'] as FutureHorizon[]).map(horizon => {
               const data = pipelineData[horizon];
               const isSelected = activeHorizon === horizon;
@@ -668,7 +668,7 @@ export default function EarlyWarnings() {
                 <button
                   key={horizon}
                   onClick={() => setActiveHorizon(horizon)}
-                  className={`p-5 rounded-2xl text-left border transition-all cursor-pointer ${
+                  className={`p-6 rounded-2xl text-left border transition-all cursor-pointer ${
                     isSelected
                       ? 'glass-card border-purple-500/40 bg-purple-950/20 shadow-xl shadow-purple-950/20'
                       : 'bg-[#091529]/70 border-slate-800 text-slate-400 hover:border-slate-700'

@@ -20,6 +20,11 @@ import ModelLab from './pages/ModelLab';
 import DataQuality from './pages/DataQuality';
 import Settings from './pages/Settings';
 import RecoveryCommandCenter from './pages/RecoveryCommandCenter';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsConditions from './pages/TermsConditions';
+import CookiesPolicy from './pages/CookiesPolicy';
+import About from './pages/About';
+import CookieConsent from './components/common/CookieConsent';
 
 function DefaultRedirect() {
   const defaultLanding = localStorage.getItem('infralytix-pref-landing-page') || '/dashboard';
@@ -28,41 +33,49 @@ function DefaultRedirect() {
 
 export default function App() {
   return (
-    <Routes>
-      {/* Public Auth Routes */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+    <>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsConditions />} />
+        <Route path="/cookies" element={<CookiesPolicy />} />
+        <Route path="/about" element={<About />} />
 
-      {/* Main Authenticated Layout Shell */}
-      <Route element={<AppShell />}>
-        <Route path="/" element={<DefaultRedirect />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/projects" element={<Projects />} />
-        <Route path="/projects/:id" element={<ProjectDossier />} />
-        <Route path="/radar" element={<RiskRadar />} />
-        <Route path="/risk" element={<RiskRadar />} />
-        <Route path="/alerts" element={<EarlyWarnings />} />
-        <Route path="/early-warnings" element={<EarlyWarnings />} />
-        <Route path="/warnings" element={<EarlyWarnings />} />
-        <Route path="/health" element={<HealthCenter />} />
-        <Route path="/analytics" element={<Analytics />} />
-        <Route path="/map" element={<MapIntelligence />} />
-        <Route path="/similarity" element={<SimilarityEngine />} />
-        <Route path="/network" element={<DependencyNetwork />} />
-        <Route path="/dependencies" element={<DependencyNetwork />} />
-        <Route path="/interventions" element={<Interventions />} />
-        <Route path="/recovery" element={<RecoveryCommandCenter />} />
-        <Route path="/reports" element={<Reports />} />
-        <Route path="/notifications" element={<Notifications />} />
-        <Route path="/copilot" element={<Copilot />} />
-        <Route path="/model-lab" element={<ModelLab />} />
-        <Route path="/models" element={<ModelLab />} />
-        <Route path="/data-quality" element={<DataQuality />} />
-        <Route path="/settings" element={<Settings />} />
-      </Route>
+        {/* Main Authenticated Layout Shell */}
+        <Route element={<AppShell />}>
+          <Route path="/" element={<DefaultRedirect />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/projects" element={<Projects />} />
+          <Route path="/projects/:id" element={<ProjectDossier />} />
+          <Route path="/radar" element={<RiskRadar />} />
+          <Route path="/risk" element={<RiskRadar />} />
+          <Route path="/alerts" element={<EarlyWarnings />} />
+          <Route path="/early-warnings" element={<EarlyWarnings />} />
+          <Route path="/warnings" element={<EarlyWarnings />} />
+          <Route path="/health" element={<HealthCenter />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/map" element={<MapIntelligence />} />
+          <Route path="/similarity" element={<SimilarityEngine />} />
+          <Route path="/network" element={<DependencyNetwork />} />
+          <Route path="/dependencies" element={<DependencyNetwork />} />
+          <Route path="/interventions" element={<Interventions />} />
+          <Route path="/recovery" element={<RecoveryCommandCenter />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/notifications" element={<Notifications />} />
+          <Route path="/copilot" element={<Copilot />} />
+          <Route path="/model-lab" element={<ModelLab />} />
+          <Route path="/models" element={<ModelLab />} />
+          <Route path="/data-quality" element={<DataQuality />} />
+          <Route path="/settings" element={<Settings />} />
+        </Route>
 
-      {/* Catch-all redirect */}
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
-    </Routes>
+        {/* Catch-all redirect */}
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
+      <CookieConsent />
+    </>
   );
 }
+

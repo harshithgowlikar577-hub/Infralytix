@@ -10,6 +10,8 @@ export default function IndiaSilhouette({ className = '' }: { className?: string
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           className="w-full h-full drop-shadow-[0_0_8px_rgba(6,182,212,0.45)]"
+          role="img"
+          aria-label="Map of India showing national infrastructure coverage"
         >
           <defs>
             <linearGradient id="indiaGlow" x1="0%" y1="0%" x2="100%" y2="100%">

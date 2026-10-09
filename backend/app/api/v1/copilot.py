@@ -6,6 +6,7 @@ from sqlalchemy import func, or_
 from backend.app.database.session import get_db
 from backend.app.models import Project
 from backend.app.schemas import CopilotRequest, CopilotResponse
+from backend.app.services.gemini_service import gemini_service
 
 router = APIRouter(prefix="/copilot", tags=["AI Governance Copilot"])
 
@@ -28,11 +29,47 @@ MINISTRIES = [
     "Housing and Urban Affairs", "MoHUA", "Shipping", "Ports"
 ]
 
+def _finalize_copilot_response(
+    raw_query: str,
+    intent: str,
+    answer_fallback: str,
+    citations: List[Dict[str, Any]],
+    actions: List[Dict[str, str]],
+    context_data: Dict[str, Any]
+) -> CopilotResponse:
+    """
+    Routes query through Gemini AI when available.
+    Falls back seamlessly to local deterministic RAG if Gemini is unavailable, rate-limited, or disabled.
+    """
+    if gemini_service.is_available():
+        context_data["intent"] = intent
+        context_data["citations"] = citations
+        gemini_res = gemini_service.generate_copilot_response(raw_query, context_data)
+        if gemini_res:
+            return CopilotResponse(
+                answer=gemini_res["answer"],
+                intent=intent,
+                citations=citations,
+                suggested_actions=actions,
+                is_offline=False,
+                engine_mode=gemini_res.get("engine_mode", "GEMINI_LLM")
+            )
+
+    return CopilotResponse(
+        answer=answer_fallback,
+        intent=intent,
+        citations=citations,
+        suggested_actions=actions,
+        is_offline=True,
+        engine_mode="LOCAL_RAG_DETERMINISTIC"
+    )
+
 @router.post("/query", response_model=CopilotResponse)
 def query_copilot(payload: CopilotRequest, db: Session = Depends(get_db)):
     """
-    Offline Deterministic Local RAG over SQLite database (1,981 national infrastructure projects).
-    Guarantees 0% hallucination with citations and grounded decision directives.
+    Hybrid AI Governance Copilot:
+    Uses Google Gemini AI as an additive reasoning layer when available.
+    Falls back seamlessly to Offline Deterministic Local RAG over SQLite database.
     """
     raw_query = (payload.query or "").strip()
     query_lower = raw_query.lower()
@@ -61,10 +98,8 @@ def query_copilot(payload: CopilotRequest, db: Session = Depends(get_db)):
     # INTENT 1: PROJECT COMPARISON (2 or more projects)
     # =========================================================================
     if len(extracted_pids) >= 2 or ("compare" in query_lower and len(extracted_pids) >= 1):
-        # Fetch projects
         pids_to_fetch = extracted_pids[:2]
         if len(pids_to_fetch) == 1:
-            # Pick another project for comparison from same sector
             base_p = db.query(Project).filter(Project.project_id == pids_to_fetch[0]).first()
             if base_p:
                 other_p = db.query(Project).filter(
@@ -113,13 +148,19 @@ def query_copilot(payload: CopilotRequest, db: Session = Depends(get_db)):
                 {"label": f"Dossier: {p2.project_id}", "link": f"/projects/{p2.project_id}"},
                 {"label": "Simulate Interventions", "link": "/simulator"}
             ]
-            return CopilotResponse(
-                answer=answer,
+
+            context_data = {
+                "p1": {"project_id": p1.project_id, "name": p1.project_name, "cost": p1.current_cost, "delay": p1.delay_days, "risk": p1.risk_level},
+                "p2": {"project_id": p2.project_id, "name": p2.project_name, "cost": p2.current_cost, "delay": p2.delay_days, "risk": p2.risk_level}
+            }
+
+            return _finalize_copilot_response(
+                raw_query=raw_query,
                 intent="PROJECT_COMPARISON",
+                answer_fallback=answer,
                 citations=citations,
-                suggested_actions=actions,
-                is_offline=True,
-                engine_mode="LOCAL_RAG_DETERMINISTIC"
+                actions=actions,
+                context_data=context_data
             )
 
     # =========================================================================
@@ -130,7 +171,6 @@ def query_copilot(payload: CopilotRequest, db: Session = Depends(get_db)):
         if extracted_pids:
             project = db.query(Project).filter(Project.project_id == extracted_pids[0]).first()
         if not project and "prj" not in query_lower:
-            # Try fuzzy matching project name
             words = [w for w in raw_query.split() if len(w) > 4 and w.lower() not in ["project", "status", "about", "explain", "detail"]]
             if words:
                 project = db.query(Project).filter(Project.project_name.ilike(f"%{words[0]}%"), Project.is_deleted == False).first()
@@ -143,7 +183,6 @@ def query_copilot(payload: CopilotRequest, db: Session = Depends(get_db)):
             overrun_pct = round((overrun_cr / max(project.original_cost, 1.0)) * 100, 1)
             delay_mos = round(project.delay_days / 30.4, 1)
 
-            # Diagnostic cause
             sector_l = (project.sector or "").lower()
             if "road" in sector_l or "highway" in sector_l:
                 root_cause = "Stage-II Forest clearance renewal & multi-district Right-of-Way (RoW) acquisition dispute."
@@ -189,13 +228,28 @@ def query_copilot(payload: CopilotRequest, db: Session = Depends(get_db)):
                 {"label": "Simulate Interventions", "link": "/simulator"},
                 {"label": "View Early Warnings", "link": "/early-warnings"}
             ]
-            return CopilotResponse(
-                answer=answer,
+
+            context_data = {
+                "project_id": project.project_id,
+                "project_name": project.project_name,
+                "sector": project.sector,
+                "state": project.state,
+                "ministry": project.ministry,
+                "original_cost": project.original_cost,
+                "current_cost": project.current_cost,
+                "expenditure": project.expenditure,
+                "delay_days": project.delay_days,
+                "progress_percentage": project.progress_percentage,
+                "risk_level": project.risk_level
+            }
+
+            return _finalize_copilot_response(
+                raw_query=raw_query,
                 intent="PROJECT_SUMMARY",
+                answer_fallback=answer,
                 citations=citations,
-                suggested_actions=actions,
-                is_offline=True,
-                engine_mode="LOCAL_RAG_DETERMINISTIC"
+                actions=actions,
+                context_data=context_data
             )
 
     # =========================================================================
@@ -209,7 +263,6 @@ def query_copilot(payload: CopilotRequest, db: Session = Depends(get_db)):
         ).order_by(Project.delay_days.desc()).all()
 
         if not state_projects:
-            # Fallback when state has no registered rows in local slice
             state_projects = db.query(Project).filter(Project.is_deleted == False).order_by(Project.delay_days.desc()).limit(3).all()
 
         if state_projects:
@@ -256,13 +309,23 @@ def query_copilot(payload: CopilotRequest, db: Session = Depends(get_db)):
                 {"label": "View Alert Center", "link": "/early-warnings"},
                 {"label": "Download State Report", "link": "/reports"}
             ]
-            return CopilotResponse(
-                answer=answer,
+
+            context_data = {
+                "state_name": state_name,
+                "total_projects": total_st_proj,
+                "total_cost_cr": total_st_cost,
+                "average_delay_days": avg_st_delay,
+                "critical_count": len(critical_st),
+                "top_critical_projects": [p.project_id for p in top_critical]
+            }
+
+            return _finalize_copilot_response(
+                raw_query=raw_query,
                 intent="STATE_ANALYSIS",
+                answer_fallback=answer,
                 citations=citations,
-                suggested_actions=actions,
-                is_offline=True,
-                engine_mode="LOCAL_RAG_DETERMINISTIC"
+                actions=actions,
+                context_data=context_data
             )
 
     # =========================================================================
@@ -306,13 +369,19 @@ def query_copilot(payload: CopilotRequest, db: Session = Depends(get_db)):
             {"label": "Early Warning Queues", "link": "/early-warnings"},
             {"label": "Generate Cabinet Memo", "link": "/reports"}
         ]
-        return CopilotResponse(
-            answer=answer,
+
+        context_data = {
+            "total_capex_at_stake": total_capex,
+            "top_projects": [p.project_id for p in critical_projects]
+        }
+
+        return _finalize_copilot_response(
+            raw_query=raw_query,
             intent="TOP_CRITICAL",
+            answer_fallback=answer,
             citations=citations,
-            suggested_actions=actions,
-            is_offline=True,
-            engine_mode="LOCAL_RAG_DETERMINISTIC"
+            actions=actions,
+            context_data=context_data
         )
 
     # =========================================================================
@@ -361,13 +430,19 @@ def query_copilot(payload: CopilotRequest, db: Session = Depends(get_db)):
             {"label": "Executive Dashboard", "link": "/dashboard"},
             {"label": "Generate Strategic Report", "link": "/reports"}
         ]
-        return CopilotResponse(
-            answer=answer,
+
+        context_data = {
+            "total_threatened_capex": total_threatened_capex,
+            "strategic_corridors": [p.project_id for p in strategic]
+        }
+
+        return _finalize_copilot_response(
+            raw_query=raw_query,
             intent="2030_TARGETS",
+            answer_fallback=answer,
             citations=citations,
-            suggested_actions=actions,
-            is_offline=True,
-            engine_mode="LOCAL_RAG_DETERMINISTIC"
+            actions=actions,
+            context_data=context_data
         )
 
     # =========================================================================
@@ -419,11 +494,18 @@ def query_copilot(payload: CopilotRequest, db: Session = Depends(get_db)):
         {"label": "Early Warning Queues", "link": "/early-warnings"},
         {"label": "Risk Monitor", "link": "/radar"}
     ]
-    return CopilotResponse(
-        answer=answer,
+
+    context_data = {
+        "total_projects": total_proj,
+        "critical_projects": critical_proj,
+        "average_delay_days": round(float(avg_delay), 1)
+    }
+
+    return _finalize_copilot_response(
+        raw_query=raw_query,
         intent="PORTFOLIO_OVERVIEW",
+        answer_fallback=answer,
         citations=citations,
-        suggested_actions=actions,
-        is_offline=True,
-        engine_mode="LOCAL_RAG_DETERMINISTIC"
+        actions=actions,
+        context_data=context_data
     )

@@ -46,7 +46,7 @@ def setup_test_db():
     )
     db.add(admin_user)
 
-    # Seed sample projects for testing
+    # Seed exact p1 and p2 required by test_api_suite
     p1 = Project(
         project_id="INF0001",
         project_name="Mega Express Corridor Phase II",
@@ -80,9 +80,56 @@ def setup_test_db():
         progress_percentage=85.0,
         financial_percentage=80.0,
         status="In Progress",
-        risk_level="Safe"
+        risk_level="Low"
     )
     db.add_all([p1, p2])
+
+    # Additional sample projects for pagination & filters (INF0003 -> INF0030)
+    ministries = [
+        "Ministry of Railways", "Ministry of Road Transport & Highways", "Ministry of Power",
+        "Ministry of Communications", "Ministry of Housing & Urban Affairs", "Ministry of Civil Aviation"
+    ]
+    sectors = ["Transport & Logistics", "Energy", "Communication", "Water & Sanitation", "Social & Commercial", "Others"]
+    states = ["Uttar Pradesh", "Gujarat", "Delhi", "Maharashtra", "Bihar", "Tamil Nadu", "Karnataka", "Assam", "West Bengal", "Rajasthan"]
+    risk_levels = ["Critical", "High", "Medium", "Low"]
+    statuses = ["In Progress", "Delayed", "Completed"]
+
+    projects_list = []
+    for i in range(3, 31):
+        m = ministries[i % len(ministries)]
+        sec = sectors[i % len(sectors)]
+        st = states[i % len(states)]
+        if i % 4 == 0:
+            rk = "Critical"
+        elif i % 4 == 1:
+            rk = "High"
+        elif i % 4 == 2:
+            rk = "Medium"
+        else:
+            rk = "Critical"
+        stat = statuses[i % len(statuses)]
+        name_prefix = "Metro" if i % 3 == 0 else ("Expressway" if i % 4 == 0 else "Project")
+
+        p = Project(
+            project_id=f"INF{i:04d}",
+            project_name=f"{name_prefix} Asset {i} Corridor",
+            ministry=m,
+            sector=sec,
+            state=st,
+            original_cost=1000.0 + i * 50,
+            current_cost=1100.0 + i * 60,
+            expenditure=500.0 + i * 30,
+            start_date=date(2023, 1, 1),
+            target_date=date(2026, 12, 31),
+            delay_days=15 * (i % 10) + 10,
+            progress_percentage=min(95.0, 10.0 + i * 2.8),
+            financial_percentage=min(95.0, 12.0 + i * 2.7),
+            status=stat,
+            risk_level=rk
+        )
+        projects_list.append(p)
+
+    db.add_all(projects_list)
     db.commit()
     db.close()
 

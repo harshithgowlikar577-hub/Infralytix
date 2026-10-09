@@ -4,6 +4,7 @@ import { useAuth } from '../lib/auth';
 import { Eye, EyeOff, ArrowRight, Shield, Lock } from 'lucide-react';
 import infralytixLogo from '../assets/logo.png';
 
+
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -66,7 +67,7 @@ export default function Login() {
           </div>
 
           {error && (
-            <div className="mt-5 p-3.5 rounded-xl bg-red-500/8 border border-red-500/20 text-red-400 text-sm flex items-start gap-2.5">
+            <div role="alert" className="mt-5 p-3.5 rounded-xl bg-red-500/8 border border-red-500/20 text-red-400 text-sm flex items-start gap-2.5">
               <Shield className="w-4 h-4 shrink-0 mt-0.5" />
               <span>{error}</span>
             </div>
@@ -92,30 +93,37 @@ export default function Login() {
 
           <form onSubmit={handleSubmit} className="space-y-5 mt-6">
             <div>
-              <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Email Address</label>
+              <label htmlFor="login-email" className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Email Address</label>
               <input
+                id="login-email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="officer@gov.in"
                 required
+                autoComplete="email"
+                aria-label="Email address"
                 className="w-full px-4 py-3 rounded-xl bg-slate-800/60 border border-slate-700/80 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 shadow-inner"
               />
             </div>
             <div>
-              <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Password</label>
+              <label htmlFor="login-password" className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Password</label>
               <div className="relative">
                 <input
+                  id="login-password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
+                  autoComplete="current-password"
+                  aria-label="Password"
                   className="w-full px-4 py-3 pr-11 rounded-xl bg-slate-800/60 border border-slate-700/80 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 shadow-inner"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors p-1 rounded-md hover:bg-slate-700/50"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -136,16 +144,26 @@ export default function Login() {
             </button>
           </form>
 
-          <p className="text-center text-xs text-slate-500 mt-8">
+          <p className="text-center text-[10px] text-slate-500 mt-6 leading-relaxed">
+            By signing in, you agree to the{' '}
+            <Link to="/terms" className="text-blue-400 hover:text-blue-300 underline">Terms & Conditions</Link>{' '}
+            and{' '}
+            <Link to="/privacy" className="text-blue-400 hover:text-blue-300 underline">Privacy Policy</Link>.
+          </p>
+
+          <p className="text-center text-xs text-slate-500 mt-4">
             Don't have an account?{' '}
             <Link to="/register" className="text-blue-400 hover:text-blue-300 font-semibold transition-colors">Register</Link>
           </p>
         </div>
 
         {/* Footer badge */}
-        <div className="text-center mt-6">
+        <div className="text-center mt-6 space-y-1">
           <p className="text-[10px] text-slate-600 tracking-wider uppercase">
-            Powered by 14-Signal AI Risk Engine • AES-256 Encrypted
+            Powered by ML Risk Prediction Engine • JWT Authenticated
+          </p>
+          <p className="text-[9px] text-slate-700">
+            © {new Date().getFullYear()} INFRALYTIX • Government of India Initiative
           </p>
         </div>
       </div>

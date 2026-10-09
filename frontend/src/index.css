@@ -774,3 +774,40 @@ html.light .ref-card:hover {
   }
 }
 
+/* ============================================================
+   ACCESSIBILITY — Reduced Motion Support (WCAG 2.1 AA)
+   Respects OS-level "Reduce Motion" accessibility preference
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .glass-card:hover,
+  .card-elevated:hover,
+  .ref-card:hover {
+    transform: none !important;
+  }
+
+  .animate-pulse,
+  .animate-spin,
+  .animate-radar-sweep,
+  .pulse-critical {
+    animation: none !important;
+  }
+
+  .skeleton {
+    animation: none !important;
+    background: rgba(8, 19, 37, 0.8) !important;
+  }
+
+  html.light .skeleton {
+    background: #E2E8F0 !important;
+  }
+}

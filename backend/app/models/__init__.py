@@ -265,6 +265,9 @@ class Dataset(BaseModel):
 
 class Notification(BaseModel):
     __tablename__ = "notifications"
+    __table_args__ = (
+        Index("idx_notifications_user_del_created", "user_id", "is_deleted", "created_at"),
+    )
     
     user_id = Column(String(36), ForeignKey("users.id"), nullable=True, index=True)
     project_id = Column(String(36), ForeignKey("projects.id"), nullable=True, index=True)

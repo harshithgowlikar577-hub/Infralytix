@@ -353,25 +353,51 @@ class SimulationResponse(BaseModel):
     baseline: Dict[str, Any]
     simulated: Dict[str, Any]
     net_improvement: Dict[str, Any]
+    delay_reduction_months: Optional[float] = 0.0
+    cost_avoidance_cr: Optional[float] = 0.0
     disclaimer: str = "Scenario estimate based on transfer function model — not a guaranteed outcome."
+
+class WhatIfRatingExplanation(BaseModel):
+    name: str
+    rating_value: str
+    reason: str
+    baseline_comparison: str
+    recommended_action: str
+    is_favorable: bool = True
+
+class WhatIfExplanationResponse(BaseModel):
+    project_id: str
+    summary: str
+    ratings: List[WhatIfRatingExplanation]
+    main_benefit: str
+    main_tradeoff: str
+    uncertainties: List[str]
+    next_steps: List[str]
+    engine_mode: str = "GEMINI_LLM"
+    disclaimer: str = "AI-generated explanation based on authoritative backend What-If simulation engine outputs."
 
 # =========================================================================
 # 11. ANALYTICS & DASHBOARD SCHEMAS
 # =========================================================================
+
 
 class DashboardAnalyticsResponse(BaseModel):
     total_projects: int
     active_projects: int
     completed_projects: int
     delayed_projects_count: Optional[int] = 0
+    schedule_delayed_projects_count: Optional[int] = 0
+    healthy_projects_count: Optional[int] = 0
     critical_projects_count: int
     high_risk_projects_count: int
+    high_risk_count: Optional[int] = 0
     total_original_cost_cr: float
     total_current_cost_cr: float
     total_expenditure_cr: float
     predicted_cost_exposure_cr: float
     average_delay_days: float
     risk_distribution: Dict[str, int]
+    health_distribution: Optional[Dict[str, int]] = None
     top_deteriorating_projects: List[Dict[str, Any]]
 
 class MinistryAnalyticsResponse(BaseModel):

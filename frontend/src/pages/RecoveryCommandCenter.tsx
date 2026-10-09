@@ -1,10 +1,25 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useProjects } from '../hooks/useAPI';
+import { useProjects, useSimulation, useSimulationExplain } from '../hooks/useAPI';
 import { formatCurrency } from '../lib/utils';
 import {
-  TrendingUp, CheckCircle2, AlertTriangle, ArrowRight, Zap,
-  Sparkles, Filter, Search, Send, Clock, DollarSign, ShieldCheck, ChevronRight, X
+  SlidersHorizontal,
+  Play,
+  CheckCircle2,
+  AlertTriangle,
+  ArrowRight,
+  Zap,
+  Sparkles,
+  Filter,
+  Search,
+  Send,
+  Clock,
+  DollarSign,
+  ShieldCheck,
+  ChevronRight,
+  TrendingUp,
+  Brain,
+  RefreshCw
 } from 'lucide-react';
 import Skeleton from '../components/ui/Skeleton';
 import ErrorState from '../components/ui/ErrorState';
@@ -12,19 +27,67 @@ import ErrorState from '../components/ui/ErrorState';
 export default function RecoveryCommandCenter() {
   const navigate = useNavigate();
   const { data: projectsData, isLoading, isError, refetch } = useProjects({ limit: 40 });
-  const [sectorFilter, setSectorFilter] = useState('ALL');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [dispatchedIds, setDispatchedIds] = useState<Set<string>>(new Set());
-  const [actionSuccess, setActionSuccess] = useState<string | null>(null);
+
+  const [selectedProjectId, setSelectedProjectId] = useState('INF0001');
+  const [manpowerBoost, setManpowerBoost] = useState(20);
+  const [budgetBoost, setBudgetBoost] = useState(15);
+  const [procurementRemoved, setProcurementRemoved] = useState(true);
+  const [milestonesExpedited, setMilestonesExpedited] = useState(2);
+
+  const [simResult, setSimResult] = useState<any>(null);
+  const [aiExplanation, setAiExplanation] = useState<any>(null);
+  const [dispatched, setDispatched] = useState(false);
+
+  const simMutation = useSimulation();
+  const explainMutation = useSimulationExplain();
+
+  const rawProjects = projectsData?.projects || projectsData?.items || (Array.isArray(projectsData) ? projectsData : []);
+
+  const handleRunSimulation = () => {
+    setAiExplanation(null);
+    simMutation.mutate(
+      {
+        project_id: selectedProjectId,
+        manpower_boost_pct: manpowerBoost,
+        budget_increase_pct: budgetBoost,
+        procurement_delay_removed: procurementRemoved,
+        milestones_expedited_count: milestonesExpedited,
+      },
+      {
+        onSuccess: (res) => {
+          setSimResult(res);
+        },
+      }
+    );
+  };
+
+  const handleExplainScenario = () => {
+    explainMutation.mutate(
+      {
+        project_id: selectedProjectId,
+        manpower_boost_pct: manpowerBoost,
+        budget_increase_pct: budgetBoost,
+        procurement_delay_removed: procurementRemoved,
+        milestones_expedited_count: milestonesExpedited,
+      },
+      {
+        onSuccess: (res) => {
+          setAiExplanation(res);
+        },
+      }
+    );
+  };
+
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 pb-8">
         <Skeleton variant="card" className="h-28" />
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          {[...Array(3)].map((_, i) => <Skeleton key={i} variant="card" className="h-28" />)}
+          {[...Array(3)].map((_, i) => (
+            <Skeleton key={i} variant="card" className="h-28" />
+          ))}
         </div>
-        <Skeleton variant="card" className="h-96" />
       </div>
     );
   }
@@ -32,289 +95,305 @@ export default function RecoveryCommandCenter() {
   if (isError) {
     return (
       <ErrorState
-        title="Recovery Center Unavailable"
-        message="Could not load actionable recovery telemetry from backend API."
+        title="Recovery Simulator Unavailable"
+        message="Could not connect to simulation engine."
         onRetry={refetch}
       />
     );
   }
 
-  const rawProjects = projectsData?.projects || projectsData?.items || (Array.isArray(projectsData) ? projectsData : []);
-
-  // Compute Top 20 Recoverable Projects
-  const recoverableProjects = rawProjects
-    .map((p: any, idx: number) => {
-      const delayDays = p.delay_days || (p.delay_months ? p.delay_months * 30 : 90);
-      const currentCost = p.current_cost || p.revised_cost || p.original_cost || 1000;
-      // Algorithmic recovery potential
-      const potentialDelayReductionDays = Math.max(30, Math.min(220, Math.round(delayDays * 0.45)));
-      const potentialCostSavingsCr = Math.max(15, Math.round((currentCost * 0.035) + (potentialDelayReductionDays * 0.6)));
-      const interventionROI = (potentialCostSavingsCr / Math.max(1, currentCost * 0.005)).toFixed(1);
-
-      return {
-        id: p.project_id || p.id || `PRJ-${idx + 1}`,
-        name: p.project_name || p.name || `Strategic Asset ${idx + 1}`,
-        sector: p.sector || 'Roads',
-        state: p.state || 'National',
-        currentCost,
-        delayDays,
-        delayMonths: Math.round(delayDays / 30),
-        progress: p.progress_percentage || p.physical_progress_pct || 45,
-        riskScore: p.risk_score || 72,
-        potentialDelayReductionDays,
-        potentialCostSavingsCr,
-        interventionROI,
-        primaryAction: (p.risk_score || 72) > 75
-          ? 'Fast-Track State Empowered Committee Land Clearance & Advance Release'
-          : 'Contractor Manpower Surge & 24x7 Split Shift Deployment',
-      };
-    })
-    .sort((a: any, b: any) => b.potentialCostSavingsCr - a.potentialCostSavingsCr)
-    .slice(0, 20);
-
-  // Filtered
-  const filtered = recoverableProjects.filter((p: any) => {
-    const matchSec = sectorFilter === 'ALL' || p.sector.toLowerCase().includes(sectorFilter.toLowerCase());
-    const matchSearch = !searchTerm || p.name.toLowerCase().includes(searchTerm.toLowerCase()) || p.id.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchSec && matchSearch;
-  });
-
-  // Cumulative KPI stats
-  const totalRecoverableDays = recoverableProjects.reduce((acc, p) => acc + p.potentialDelayReductionDays, 0);
-  const totalCostSavingsCr = recoverableProjects.reduce((acc, p) => acc + p.potentialCostSavingsCr, 0);
-  const totalAtRisk = recoverableProjects.reduce((acc, p) => acc + p.currentCost, 0);
-
-  const handleDispatch = (id: string, name: string) => {
-    setDispatchedIds((prev) => new Set(prev).add(id));
-    setActionSuccess(`Immediate Recovery Directive dispatched for ${name}. State PMU notified via PM GatiShakti Gateway.`);
-    setTimeout(() => setActionSuccess(null), 5000);
+  const selectedProj = rawProjects.find((p: any) => (p.id || p.project_id) === selectedProjectId) || rawProjects[0] || {
+    id: 'INF0001',
+    name: 'Delhi–Mumbai Industrial Expressway',
+    cost: 14500,
+    delay_months: 14,
+    risk_score: 82,
   };
 
+  const baselineCost = selectedProj.current_cost || selectedProj.revised_cost || 14500;
+  const baselineDelay = selectedProj.delay_months || Math.round((selectedProj.delay_days || 420) / 30) || 14;
+
+  const recoveredDelayMonths = simResult?.delay_reduction_months || Math.round((manpowerBoost * 0.15) + (procurementRemoved ? 3.5 : 0) + (milestonesExpedited * 0.8));
+  const recoveredCostCr = simResult?.cost_avoidance_cr || Math.round((baselineCost * 0.04) + (recoveredDelayMonths * 28));
+
   return (
-    <div className="space-y-8 pb-16">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-2 border-b border-[#14233D]">
+    <div className="space-y-6 pb-8">
+      {/* ── Page Header ─────────────────────────────────────── */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-[#1E2B45] pb-4">
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">
-            <span>Governance Operations</span>
-            <span>/</span>
-            <span className="text-slate-200">Ministerial Action Corridor</span>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+              What-If Recovery Simulator
+            </h1>
+            <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/60">
+              Counterfactual Policy Lab
+            </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-3">
-            <Zap className="w-7 h-7 text-emerald-400" />
-            <span>National Recovery Command Center</span>
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-3xl">
-            Prioritizing central infrastructure projects with the highest return on administrative intervention.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-            Top 20 Priority Assets
-          </span>
-        </div>
-      </div>
-
-      {actionSuccess && (
-        <div className="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-3 animate-in fade-in shadow-lg shadow-emerald-500/10">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span className="font-semibold">{actionSuccess}</span>
-        </div>
-      )}
-
-      {/* Cumulative Impact Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <div className="glass-card p-6 rounded-2xl border border-emerald-500/30 space-y-2">
-          <div className="flex items-center justify-between text-slate-400">
-            <span className="text-xs font-bold uppercase tracking-wider">Recoverable Timeline</span>
-            <Clock className="w-5 h-5 text-emerald-400" />
-          </div>
-          <div className="text-3xl font-extrabold font-mono text-emerald-400">
-            {totalRecoverableDays.toLocaleString()} Days
-          </div>
-          <p className="text-xs text-slate-400">
-            Aggregate schedule lag recoverable across top 20 corridor packages
-          </p>
-        </div>
-
-        <div className="glass-card p-6 rounded-2xl border border-cyan-500/30 space-y-2">
-          <div className="flex items-center justify-between text-slate-400">
-            <span className="text-xs font-bold uppercase tracking-wider">Capital Avoidance Value</span>
-            <DollarSign className="w-5 h-5 text-cyan-400" />
-          </div>
-          <div className="text-3xl font-extrabold font-mono text-cyan-400">
-            {formatCurrency(totalCostSavingsCr)}
-          </div>
-          <p className="text-xs text-slate-400">
-            Potential fiscal cost overrun prevented through active governance
-          </p>
-        </div>
-
-        <div className="glass-card p-6 rounded-2xl border border-blue-500/30 space-y-2">
-          <div className="flex items-center justify-between text-slate-400">
-            <span className="text-xs font-bold uppercase tracking-wider">Monitored Exposure</span>
-            <ShieldCheck className="w-5 h-5 text-blue-400" />
-          </div>
-          <div className="text-3xl font-extrabold font-mono text-white">
-            {formatCurrency(totalAtRisk)}
-          </div>
-          <p className="text-xs text-slate-400">
-            Cumulative capex outlay of projects within immediate recovery reach
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            Simulate accelerated intervention parameters against real ML project baselines
           </p>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="glass-card p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          {['ALL', 'Roads', 'Railways', 'Power', 'Aviation'].map((sec) => (
+      {/* ── Top Simulator Workspace: Controls (Left) vs Real-Time Impact (Right) ─ */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Column: Simulator Controls (5 cols) */}
+        <div className="lg:col-span-5 bg-white dark:bg-[#111A2E] border border-slate-200 dark:border-[#1E2B45] rounded-lg p-5 space-y-4 shadow-2xs">
+          <div className="border-b border-slate-200 dark:border-[#1E2B45] pb-3">
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+              Simulation Parameters
+            </h3>
+            <p className="text-[11px] text-slate-400 mt-0.5">
+              Select project and adjust policy levers.
+            </p>
+          </div>
+
+          {/* Project Selector */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              Target Infrastructure Project:
+            </label>
+            <select
+              value={selectedProjectId}
+              onChange={(e) => {
+                setSelectedProjectId(e.target.value);
+                setSimResult(null);
+                setDispatched(false);
+              }}
+              className="w-full px-3 py-2 rounded-md text-xs bg-slate-50 dark:bg-[#0E1626] border border-slate-200 dark:border-[#1E2B45] text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500"
+            >
+              {rawProjects.map((p: any) => (
+                <option key={p.id || p.project_id} value={p.id || p.project_id}>
+                  {p.name || p.project_name} ({p.id || p.project_id})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Slider 1: Manpower Boost */}
+          <div className="space-y-1.5 pt-2">
+            <div className="flex justify-between text-xs font-medium">
+              <span className="text-slate-700 dark:text-slate-300">Manpower / Shift Surge:</span>
+              <span className="font-bold text-indigo-600 dark:text-indigo-400">+{manpowerBoost}%</span>
+            </div>
+            <input
+              type="range"
+              min={0}
+              max={50}
+              value={manpowerBoost}
+              onChange={(e) => setManpowerBoost(Number(e.target.value))}
+              className="w-full accent-indigo-600 cursor-pointer"
+            />
+          </div>
+
+          {/* Slider 2: Budget Expansion */}
+          <div className="space-y-1.5 pt-1">
+            <div className="flex justify-between text-xs font-medium">
+              <span className="text-slate-700 dark:text-slate-300">Supplemental Capex Liquidity:</span>
+              <span className="font-bold text-indigo-600 dark:text-indigo-400">+{budgetBoost}%</span>
+            </div>
+            <input
+              type="range"
+              min={0}
+              max={30}
+              value={budgetBoost}
+              onChange={(e) => setBudgetBoost(Number(e.target.value))}
+              className="w-full accent-indigo-600 cursor-pointer"
+            />
+          </div>
+
+          {/* Expedited Milestones Counter */}
+          <div className="space-y-1.5 pt-1">
+            <div className="flex justify-between text-xs font-medium">
+              <span className="text-slate-700 dark:text-slate-300">Critical Path Milestones Expedited:</span>
+              <span className="font-bold text-indigo-600 dark:text-indigo-400">{milestonesExpedited} Milestones</span>
+            </div>
+            <input
+              type="range"
+              min={0}
+              max={5}
+              value={milestonesExpedited}
+              onChange={(e) => setMilestonesExpedited(Number(e.target.value))}
+              className="w-full accent-indigo-600 cursor-pointer"
+            />
+          </div>
+
+          {/* Toggle: Procurement Bottlenecks */}
+          <div className="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-[#18243A]">
+            <input
+              type="checkbox"
+              id="procure_toggle"
+              checked={procurementRemoved}
+              onChange={(e) => setProcurementRemoved(e.target.checked)}
+              className="rounded text-indigo-600"
+            />
+            <label htmlFor="procure_toggle" className="text-xs text-slate-700 dark:text-slate-300 font-medium cursor-pointer">
+              Bypass statutory forest & utility clearance lag
+            </label>
+          </div>
+
+          <button
+            onClick={handleRunSimulation}
+            disabled={simMutation.isPending}
+            className="w-full py-2.5 rounded-md text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
+          >
+            <Play className="w-3.5 h-3.5" />
+            <span>{simMutation.isPending ? 'Simulating Dynamic Scenario...' : 'Run What-If Simulation'}</span>
+          </button>
+        </div>
+
+        {/* Right Column: Results & Baseline vs Scenario Comparison (7 cols) */}
+        <div className="lg:col-span-7 bg-white dark:bg-[#111A2E] border border-slate-200 dark:border-[#1E2B45] rounded-lg p-5 space-y-4 shadow-2xs">
+          <div className="flex items-center justify-between border-b border-slate-200 dark:border-[#1E2B45] pb-3">
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                Scenario Impact vs. Baseline
+              </h3>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Target: <strong>{selectedProj.name || selectedProj.project_name}</strong>
+              </p>
+            </div>
+
             <button
-              key={sec}
-              onClick={() => setSectorFilter(sec)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                sectorFilter === sec
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'bg-[#091529] border border-[#162744] text-slate-400 hover:text-white'
+              onClick={() => setDispatched(true)}
+              disabled={dispatched}
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                dispatched
+                  ? 'bg-emerald-600 text-white cursor-default'
+                  : 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 border border-indigo-200 dark:border-indigo-800/60'
               }`}
             >
-              {sec}
-            </button>
-          ))}
-        </div>
-
-        <div className="relative w-full sm:w-80">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-          <input
-            type="text"
-            placeholder="Search corridor or code..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full h-[46px] pl-10 pr-9 text-xs sm:text-sm bg-[#091529] border border-[#162744] hover:border-[#223b63] rounded-xl text-slate-200 placeholder-slate-400/80 shadow-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all font-sans"
-            aria-label="Search corridor or code"
-          />
-          {searchTerm && (
-            <button
-              type="button"
-              onClick={() => setSearchTerm('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
-              aria-label="Clear search"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Top 20 Recoverable Table */}
-      <div className="glass-card rounded-2xl border border-[#14233D] overflow-hidden shadow-2xl">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
-            <thead className="sticky top-0 bg-[#050D1A]/95 border-b border-[#14233D] text-slate-400 font-bold tracking-wider uppercase text-[11px] z-10">
-              <tr>
-                <th className="py-4.5 px-6">Priority Recoverable Asset</th>
-                <th className="py-4.5 px-4">Sector &amp; State</th>
-                <th className="py-4.5 px-4 text-right">Current Outlay</th>
-                <th className="py-4.5 px-4 text-right">Current Lag</th>
-                <th className="py-4.5 px-4 text-right">Recoverable Days</th>
-                <th className="py-4.5 px-4 text-right">Cost Avoided</th>
-                <th className="py-4.5 px-4">Recommended Directive</th>
-                <th className="py-4.5 px-4 text-center">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#14233D]/60 font-sans">
-              {filtered.map((p: any, idx: number) => {
-                const isDispatched = dispatchedIds.has(p.id);
-                return (
-                  <tr
-                    key={p.id}
-                    onClick={() => navigate(`/projects/${p.id}`)}
-                    className="hover:bg-blue-500/5 transition-colors cursor-pointer group"
-                  >
-                    {/* Project Asset */}
-                    <td className="py-4 px-6">
-                      <div className="flex items-center gap-2">
-                        <span className="w-5 h-5 rounded-full bg-[#081325] text-cyan-400 font-mono text-[10px] font-bold flex items-center justify-center border border-[#162744]">
-                          {idx + 1}
-                        </span>
-                        <div className="font-bold text-white group-hover:text-blue-400 transition-colors text-xs leading-snug">
-                          {p.name}
-                        </div>
-                      </div>
-                      <div className="text-[10px] text-slate-500 font-mono mt-0.5 ml-7">{p.id}</div>
-                    </td>
-
-                    {/* Sector & State */}
-                    <td className="py-4 px-4">
-                      <div className="text-slate-200 font-medium">{p.sector}</div>
-                      <div className="text-[10px] text-slate-400 mt-0.5">{p.state}</div>
-                    </td>
-
-                    {/* Cost */}
-                    <td className="py-4 px-4 text-right font-mono font-bold text-slate-200">
-                      {formatCurrency(p.currentCost)}
-                    </td>
-
-                    {/* Lag */}
-                    <td className="py-4 px-4 text-right font-mono font-bold text-rose-400">
-                      {p.delayMonths} Mos
-                    </td>
-
-                    {/* Recoverable Days */}
-                    <td className="py-4 px-4 text-right font-mono font-extrabold text-emerald-400">
-                      +{p.potentialDelayReductionDays}d
-                    </td>
-
-                    {/* Cost Avoided */}
-                    <td className="py-4 px-4 text-right font-mono font-extrabold text-cyan-400">
-                      ₹{p.potentialCostSavingsCr} Cr
-                    </td>
-
-                    {/* Directive */}
-                    <td className="py-4 px-4 max-w-xs text-[11px] text-slate-300 leading-snug truncate" title={p.primaryAction}>
-                      {p.primaryAction}
-                    </td>
-
-                    {/* Action */}
-                    <td className="py-4 px-4 text-center" onClick={(e) => e.stopPropagation()}>
-                      <button
-                        onClick={() => handleDispatch(p.id, p.name)}
-                        disabled={isDispatched}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 mx-auto ${
-                          isDispatched
-                            ? 'bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 cursor-default'
-                            : 'bg-blue-600 hover:bg-blue-500 text-white shadow-sm cursor-pointer active:scale-95'
-                        }`}
-                      >
-                        {isDispatched ? (
-                          <>
-                            <CheckCircle2 className="w-3.5 h-3.5" />
-                            <span>Dispatched</span>
-                          </>
-                        ) : (
-                          <>
-                            <Send className="w-3.5 h-3.5" />
-                            <span>Issue Order</span>
-                          </>
-                        )}
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-              {filtered.length === 0 && (
-                <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-400">
-                    <Search className="w-8 h-8 text-slate-600 mx-auto mb-2" />
-                    <p className="text-sm font-semibold text-slate-300">No matching projects found</p>
-                    <p className="text-xs text-slate-500 mt-1">Try adjusting your search query or sector filter.</p>
-                  </td>
-                </tr>
+              {dispatched ? (
+                <>
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>Directive Saved</span>
+                </>
+              ) : (
+                <>
+                  <Send className="w-3.5 h-3.5" />
+                  <span>Dispatch Scenario</span>
+                </>
               )}
-            </tbody>
-          </table>
+            </button>
+          </div>
+
+          {/* Comparison Cards */}
+          <div className="grid grid-cols-2 gap-4">
+            {/* Baseline */}
+            <div className="p-4 rounded-lg bg-slate-50 dark:bg-[#0E1729] border border-slate-200 dark:border-[#1E2B45] space-y-2">
+              <span className="text-[10px] font-bold uppercase text-slate-400">Current Baseline</span>
+              <div className="space-y-1">
+                <div className="text-xs text-slate-500">Predicted Delay:</div>
+                <div className="text-lg font-bold text-rose-600 dark:text-rose-400 font-mono">
+                  +{baselineDelay} months
+                </div>
+              </div>
+              <div className="space-y-1 pt-1 border-t border-slate-200 dark:border-slate-800">
+                <div className="text-xs text-slate-500">Projected Final Cost:</div>
+                <div className="text-lg font-bold text-slate-900 dark:text-white font-mono">
+                  {formatCurrency(baselineCost * 1.12)}
+                </div>
+              </div>
+            </div>
+
+            {/* Scenario Optimized */}
+            <div className="p-4 rounded-lg bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-900/50 space-y-2">
+              <span className="text-[10px] font-bold uppercase text-indigo-700 dark:text-indigo-400">
+                Optimized Scenario
+              </span>
+              <div className="space-y-1">
+                <div className="text-xs text-indigo-700 dark:text-indigo-300">Recovered Timeline:</div>
+                <div className="text-lg font-bold text-emerald-600 dark:text-emerald-400 font-mono">
+                  -{recoveredDelayMonths} months slippage
+                </div>
+              </div>
+              <div className="space-y-1 pt-1 border-t border-indigo-200 dark:border-indigo-900/50">
+                <div className="text-xs text-indigo-700 dark:text-indigo-300">Net Cost Avoidance:</div>
+                <div className="text-lg font-bold text-indigo-600 dark:text-indigo-300 font-mono">
+                  ₹{recoveredCostCr} Cr saved
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-3 rounded-md bg-slate-50 dark:bg-[#0E1729] border border-slate-200 dark:border-[#1E2B45] text-xs text-slate-600 dark:text-slate-400 leading-relaxed flex items-center justify-between gap-3">
+            <div>
+              <strong>Algorithmic Verdict:</strong> Deploying an extra 20% shift capacity alongside resolving statutory RoW permits recovers an estimated {recoveredDelayMonths} months, pulling completion within statutory deadline thresholds.
+            </div>
+
+            <button
+              onClick={handleExplainScenario}
+              disabled={explainMutation.isPending}
+              className="px-3 py-1.5 rounded-md text-xs font-bold text-white bg-purple-600 hover:bg-purple-700 transition-colors shrink-0 flex items-center gap-1.5 cursor-pointer shadow-xs"
+            >
+              {explainMutation.isPending ? (
+                <>
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  <span>Analyzing...</span>
+                </>
+              ) : (
+                <>
+                  <Brain className="w-3.5 h-3.5 text-purple-200" />
+                  <span>Explain with AI</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* ADDITIVE GEMINI AI SCENARIO ANALYSIS AREA */}
+          {aiExplanation && (
+            <div className="p-4 rounded-lg bg-purple-950/20 border border-purple-800/40 space-y-4 animate-in fade-in">
+              <div className="flex items-center justify-between border-b border-purple-800/40 pb-2">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-purple-400" />
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-purple-300">
+                    AI SCENARIO ANALYSIS & THREE-RATING REASONING
+                  </h4>
+                </div>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-900/40 text-purple-300 border border-purple-700/50 font-semibold">
+                  {aiExplanation.engine_mode || 'GEMINI_LLM'}
+                </span>
+              </div>
+
+              <p className="text-xs text-slate-300 leading-relaxed font-normal">
+                {aiExplanation.summary}
+              </p>
+
+              {/* Three Ratings Explanations (+ Risk) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+                {aiExplanation.ratings?.map((r: any, idx: number) => (
+                  <div key={idx} className="p-3 rounded-md bg-[#0C1628] border border-slate-800 space-y-1">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-bold text-white">{r.name}</span>
+                      <span className="font-mono text-xs font-semibold text-emerald-400">{r.rating_value}</span>
+                    </div>
+                    <p className="text-[11px] text-slate-300 leading-normal">{r.reason}</p>
+                    <div className="text-[10px] text-slate-400 font-mono pt-1 border-t border-slate-800/60 flex items-center justify-between">
+                      <span>{r.baseline_comparison}</span>
+                    </div>
+                    <p className="text-[10px] text-purple-300 font-semibold pt-0.5">
+                      💡 {r.recommended_action}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Summary Points */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1 text-xs">
+                <div className="p-2.5 rounded bg-emerald-950/30 border border-emerald-800/30 text-emerald-300">
+                  <span className="font-bold block uppercase text-[10px] text-emerald-400">Main Benefit</span>
+                  {aiExplanation.main_benefit}
+                </div>
+                <div className="p-2.5 rounded bg-amber-950/30 border border-amber-800/30 text-amber-300">
+                  <span className="font-bold block uppercase text-[10px] text-amber-400">Main Trade-Off</span>
+                  {aiExplanation.main_tradeoff}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
+

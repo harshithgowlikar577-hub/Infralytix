@@ -402,17 +402,17 @@ export default function ExecutiveView({ data, riskData, sectorData }: ExecutiveV
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-wrap items-center gap-2 mb-1">
                     <span className="text-xs font-mono-data font-bold text-blue-400 bg-blue-950/40 px-2 py-0.5 rounded border border-blue-800/40">
-                      {proj.id}
+                      {(proj as any).project_id || proj.id}
                     </span>
-                    <span className="text-xs font-semibold text-slate-300">{proj.agency}</span>
+                    <span className="text-xs font-semibold text-slate-300">{proj.agency || (proj as any).implementing_agency || proj.ministry}</span>
                     <span className="text-xs text-slate-500">·</span>
                     <span className="text-xs text-slate-400 truncate">{proj.state}</span>
                     <span className="text-xs text-slate-500">·</span>
-                    <span className="text-xs text-slate-400 truncate">Contractor: {proj.contractor}</span>
+                    <span className="text-xs text-slate-400 truncate">Contractor: {proj.contractor || 'N/A'}</span>
                   </div>
 
                   <h4 className="text-sm font-semibold text-slate-100 group-hover:text-blue-300 transition-colors">
-                    {proj.name}
+                    {(proj as any).project_name || proj.name || 'Project name unavailable'}
                   </h4>
 
                   {/* Root Cause Driver */}

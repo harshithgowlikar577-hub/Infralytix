@@ -93,8 +93,10 @@ class WhatIfSimulationEngine:
             delay_days=simulated_delay_days
         )
 
-        net_delay_gain_days = max(0, base_delay["predicted_delay_days"] - sim_delay["predicted_delay_days"])
-        net_cost_avoidance = round(max(0.0, base_cost["predicted_final_cost"] - sim_cost["predicted_final_cost"]), 2)
+        net_delay_gain_days = max(total_delay_recovered, base_delay["predicted_delay_days"] - sim_delay["predicted_delay_days"])
+        sim_delay["predicted_delay_days"] = max(0, base_delay["predicted_delay_days"] - net_delay_gain_days)
+        sim_delay["predicted_delay_months"] = round(sim_delay["predicted_delay_days"] / 30.4, 1)
+        net_cost_avoidance = round(base_cost["predicted_final_cost"] - sim_cost["predicted_final_cost"], 2)
         net_health_gain = round(sim_health["health_score"] - base_health["health_score"], 1)
 
         return {
@@ -126,6 +128,8 @@ class WhatIfSimulationEngine:
                 "health_score_gain": net_health_gain,
                 "risk_score_reduction": round(base_risk["risk_score"] - sim_risk["risk_score"], 1)
             },
+            "delay_reduction_months": round(net_delay_gain_days / 30.4, 1),
+            "cost_avoidance_cr": net_cost_avoidance,
             "disclaimer": "Scenario estimate calculated using perturbation transfer model — not a guaranteed outcome."
         }
 

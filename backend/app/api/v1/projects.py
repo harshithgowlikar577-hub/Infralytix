@@ -27,17 +27,21 @@ def list_projects(
     query = db.query(Project).filter(Project.is_deleted == False)
 
     if search:
+        search_clean = search.strip()
         query = query.filter(
-            Project.project_name.ilike(f"%{search}%") |
-            Project.project_id.ilike(f"%{search}%") |
-            Project.contractor.ilike(f"%{search}%")
+            Project.project_name.ilike(f"%{search_clean}%") |
+            Project.project_id.ilike(f"%{search_clean}%") |
+            Project.contractor.ilike(f"%{search_clean}%") |
+            Project.ministry.ilike(f"%{search_clean}%") |
+            Project.sector.ilike(f"%{search_clean}%") |
+            Project.state.ilike(f"%{search_clean}%")
         )
     if ministry:
-        query = query.filter(Project.ministry == ministry)
+        query = query.filter(Project.ministry.ilike(f"%{ministry.strip()}%"))
     if sector:
-        query = query.filter(Project.sector == sector)
+        query = query.filter(Project.sector.ilike(f"%{sector.strip()}%"))
     if state:
-        query = query.filter(Project.state == state)
+        query = query.filter(Project.state.ilike(f"%{state.strip()}%"))
     if status:
         st_clean = status.strip()
         st_lower = st_clean.lower()
@@ -71,7 +75,7 @@ def list_projects(
             query = query.filter(Project.risk_level.ilike(f"%{rk_clean}%"))
 
     total = query.count()
-    projects = query.offset((page - 1) * limit).limit(limit).all()
+    projects = query.order_by(Project.id.asc()).offset((page - 1) * limit).limit(limit).all()
 
     return ProjectListResponse(
         total_count=total,

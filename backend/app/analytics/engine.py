@@ -1,7 +1,7 @@
 from typing import Dict, Any, List
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from backend.app.models import Project
+from backend.app.models import Project, ProjectHealthScore
 
 class AnalyticsEngine:
     @staticmethod
@@ -10,17 +10,59 @@ class AnalyticsEngine:
         active_projects = db.query(Project).filter(Project.status != "Completed", Project.is_deleted == False).count()
         completed_projects = db.query(Project).filter(Project.status == "Completed", Project.is_deleted == False).count()
         delayed_projects = db.query(Project).filter(Project.status == "Delayed", Project.is_deleted == False).count()
+        schedule_delayed_projects = db.query(Project).filter(Project.delay_days > 0, Project.is_deleted == False).count()
         
         orig_sum = db.query(func.sum(Project.original_cost)).filter(Project.is_deleted == False).scalar() or 0.0
         cur_sum = db.query(func.sum(Project.current_cost)).filter(Project.is_deleted == False).scalar() or 0.0
         exp_sum = db.query(func.sum(Project.expenditure)).filter(Project.is_deleted == False).scalar() or 0.0
         avg_delay = db.query(func.avg(Project.delay_days)).filter(Project.is_deleted == False).scalar() or 0.0
 
-        # Risk distribution counts
+        # Risk distribution counts (from projects table / latest risk state)
         critical_count = db.query(Project).filter(Project.risk_level == "Critical", Project.is_deleted == False).count()
         high_count = db.query(Project).filter(Project.risk_level == "High", Project.is_deleted == False).count()
         medium_count = db.query(Project).filter(Project.risk_level == "Medium", Project.is_deleted == False).count()
         low_count = db.query(Project).filter(Project.risk_level == "Low", Project.is_deleted == False).count()
+
+        # Health distribution counts from latest project_health_scores snapshot per project
+        healthy_count = 0
+        warning_health_count = 0
+        critical_health_count = 0
+
+        try:
+            latest_health_subq = (
+                db.query(
+                    ProjectHealthScore.project_id,
+                    ProjectHealthScore.health_status,
+                    func.row_number().over(
+                        partition_by=ProjectHealthScore.project_id,
+                        order_by=[ProjectHealthScore.created_at.desc(), ProjectHealthScore.id.desc()]
+                    ).label("rn")
+                ).subquery()
+            )
+            h_cnt = db.query(latest_health_subq).filter(
+                latest_health_subq.c.rn == 1,
+                latest_health_subq.c.health_status == "Healthy"
+            ).count()
+            w_cnt = db.query(latest_health_subq).filter(
+                latest_health_subq.c.rn == 1,
+                latest_health_subq.c.health_status == "Warning"
+            ).count()
+            c_cnt = db.query(latest_health_subq).filter(
+                latest_health_subq.c.rn == 1,
+                latest_health_subq.c.health_status == "Critical"
+            ).count()
+            if (h_cnt + w_cnt + c_cnt) > 0:
+                healthy_count = h_cnt
+                warning_health_count = w_cnt
+                critical_health_count = c_cnt
+            else:
+                healthy_count = db.query(Project).filter(Project.is_deleted == False, Project.risk_level.in_(["Low", "Medium", "Safe"]), Project.delay_days <= 60).count()
+                warning_health_count = db.query(Project).filter(Project.is_deleted == False, Project.risk_level == "High").count()
+                critical_health_count = db.query(Project).filter(Project.is_deleted == False, Project.risk_level == "Critical").count()
+        except Exception:
+            healthy_count = db.query(Project).filter(Project.is_deleted == False, Project.risk_level.in_(["Low", "Medium", "Safe"]), Project.delay_days <= 60).count()
+            warning_health_count = db.query(Project).filter(Project.is_deleted == False, Project.risk_level == "High").count()
+            critical_health_count = db.query(Project).filter(Project.is_deleted == False, Project.risk_level == "Critical").count()
 
         # Top deteriorating projects
         deteriorating = db.query(Project).filter(
@@ -47,8 +89,11 @@ class AnalyticsEngine:
             "active_projects": active_projects,
             "completed_projects": completed_projects,
             "delayed_projects_count": delayed_projects,
+            "schedule_delayed_projects_count": schedule_delayed_projects,
+            "healthy_projects_count": healthy_count,
             "critical_projects_count": critical_count,
             "high_risk_projects_count": high_count,
+            "high_risk_count": high_count + critical_count,
             "total_original_cost_cr": round(float(orig_sum), 2),
             "total_current_cost_cr": round(float(cur_sum), 2),
             "total_expenditure_cr": round(float(exp_sum), 2),
@@ -59,6 +104,11 @@ class AnalyticsEngine:
                 "Medium": medium_count,
                 "High": high_count,
                 "Critical": critical_count
+            },
+            "health_distribution": {
+                "Healthy": healthy_count,
+                "Warning": warning_health_count,
+                "Critical": critical_health_count
             },
             "top_deteriorating_projects": top_det_list
         }
@@ -93,7 +143,9 @@ class AnalyticsEngine:
         results = db.query(
             Project.state,
             func.count(Project.id).label("project_count"),
+            func.sum(Project.original_cost).label("total_original_cost"),
             func.sum(Project.current_cost).label("total_cost"),
+            func.sum(Project.expenditure).label("total_expenditure"),
             func.avg(Project.delay_days).label("avg_delay_days"),
             func.avg(Project.progress_percentage).label("avg_progress")
         ).filter(Project.is_deleted == False).group_by(Project.state).order_by(func.count(Project.id).desc()).all()
@@ -102,7 +154,9 @@ class AnalyticsEngine:
             {
                 "state": r.state,
                 "project_count": r.project_count,
+                "total_original_cost_cr": round(float(r.total_original_cost or 0), 2),
                 "total_cost_cr": round(float(r.total_cost or 0), 2),
+                "total_expenditure_cr": round(float(r.total_expenditure or 0), 2),
                 "average_delay_days": round(float(r.avg_delay_days or 0), 1),
                 "average_progress_pct": round(float(r.avg_progress or 0), 1)
             }
