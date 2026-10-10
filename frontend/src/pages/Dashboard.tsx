@@ -26,7 +26,7 @@ import {
   Tooltip,
   CartesianGrid,
 } from 'recharts';
-import { useDashboardAnalytics, useProjects, useStateAnalytics } from '../hooks/useAPI';
+import { useDashboardAnalytics, useProjects, useStateAnalytics, useGISMarkers } from '../hooks/useAPI';
 import MetricCard from '../components/ui/MetricCard';
 import { RiskBadge } from '../components/ui/Badge';
 import IndiaGisMap from '../components/gis/IndiaGisMap';
@@ -36,10 +36,11 @@ import { formatCurrency } from '../lib/utils';
 export default function Dashboard() {
   const navigate = useNavigate();
 
-  // Load real backend analytics
+  // Load real backend analytics & authoritative GIS dataset
   const { data: dashData, refetch: refetchDash, isFetching } = useDashboardAnalytics();
   const { data: stateData } = useStateAnalytics();
   const { data: projectsData } = useProjects({ limit: 40 });
+  const { data: gisData } = useGISMarkers();
 
   const [cabinetBriefOpen, setCabinetBriefOpen] = useState(false);
   const [selectedState, setSelectedState] = useState<string | null>('Maharashtra');
@@ -54,6 +55,7 @@ export default function Dashboard() {
 
   // Real projects list for map and tables
   const projectsList = (dashData?.critical_projects || projectsData?.projects || projectsData?.items || []).slice(0, 15);
+  const allGisMarkers = gisData?.markers || [];
 
   // Performance Trend Data (2021-2026)
   const trendData = [
@@ -65,7 +67,7 @@ export default function Dashboard() {
     { period: '2026-Q2', delayMos: 13.5, costGrowthCr: 45200, highRiskPct: 41.5 },
   ];
 
-  // State aggregated metrics reconciled with backend state analytics
+  // State aggregated metrics reconciled with backend state analytics and GIS dataset
   const stateSummary = React.useMemo(() => {
     if (!selectedState) {
       return {
@@ -76,24 +78,27 @@ export default function Dashboard() {
         delayedCount: delayedProjects,
       };
     }
+    const targetStateLower = selectedState.toLowerCase().trim();
     const stInfo = (stateData?.states || []).find(
-      (s: any) => s.state?.toLowerCase() === selectedState.toLowerCase()
+      (s: any) => s.state?.toLowerCase().trim() === targetStateLower
     );
-    const stateProjs = (projectsData?.projects || []).filter(
-      (p: any) => p.state?.toLowerCase() === selectedState.toLowerCase()
+    const matchingGisMarkers = allGisMarkers.filter(
+      (p: any) => (p.state || '').toLowerCase().trim().includes(targetStateLower) || targetStateLower.includes((p.state || '').toLowerCase().trim())
     );
-    const count = stInfo?.project_count ?? stateProjs.length;
-    const origCost = stInfo?.total_original_cost_cr ?? stateProjs.reduce((acc: number, p: any) => acc + (p.original_cost || 0), 0);
-    const revCost = stInfo?.total_cost_cr ?? stateProjs.reduce((acc: number, p: any) => acc + (p.current_cost || p.original_cost || 0), 0);
+
+    const count = stInfo?.project_count ?? matchingGisMarkers.length;
+    const origCost = stInfo?.total_original_cost_cr ?? matchingGisMarkers.reduce((acc: number, p: any) => acc + (p.original_cost || 0), 0);
+    const revCost = stInfo?.total_cost_cr ?? matchingGisMarkers.reduce((acc: number, p: any) => acc + (p.current_cost || p.original_cost || 0), 0);
+    const delayedCount = stInfo?.delayed_projects_count ?? matchingGisMarkers.filter((p: any) => p.status === 'Delayed' || (p.delay_days && p.delay_days > 0)).length;
 
     return {
       name: selectedState,
       projectCount: count,
       originalCost: origCost,
       revisedCost: revCost,
-      delayedCount: stInfo?.delayed_projects_count ?? Math.round(count * 0.05),
+      delayedCount: delayedCount,
     };
-  }, [selectedState, totalProjects, delayedProjects, dashData, stateData, projectsData]);
+  }, [selectedState, totalProjects, delayedProjects, dashData, stateData, allGisMarkers]);
 
   // Clean Alerts List (Section 5)
   const recentAlerts = [
@@ -342,6 +347,7 @@ export default function Dashboard() {
 
             <div className="flex-1 flex items-center justify-center">
               <IndiaGisMap
+                projects={allGisMarkers}
                 selectedState={selectedState}
                 onSelectState={(st) => setSelectedState(st)}
                 height={420}

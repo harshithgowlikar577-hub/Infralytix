@@ -57,24 +57,38 @@ class GeminiService:
             return None
 
         system_instruction = (
-            "You are the INFRALYTIX Governance AI Copilot, an expert advisor for Indian national infrastructure project monitoring. "
-            "Your role is to explain project telemetry, delays, cost overruns, risk levels, and scenario forecasts in natural language. "
-            "STRICT RULES:\n"
-            "1. Ground all answers strictly in the provided project context data.\n"
-            "2. DO NOT fabricate or invent dates, costs, project records, or risk scores.\n"
-            "3. If information is not in the context, state clearly that it is unavailable.\n"
-            "4. Structure your response in clear markdown with: Direct Answer, Key Project Facts, Detailed Explanation, and Suggested Action Directives.\n"
-            "5. Maintain a professional, executive tone suitable for Cabinet Secretaries and Senior Project Directors."
+            "You are the INFRALYTIX AI Copilot, a helpful assistant that explains Indian infrastructure projects to people who are not technical experts. "
+            "Talk like a knowledgeable colleague, not like a formal report.\n"
+            "STRICT RULES — follow these exactly:\n"
+            "1. Start your answer immediately with the relevant information. Do NOT start with 'Based on...' or 'The portfolio exhibits...' or introductory sentences.\n"
+            "2. Use ONLY facts from the provided project data. Never invent project names, costs, dates, delays, or risk scores.\n"
+            "3. If data is missing, say: 'I couldn't find that in the available records.'\n"
+            "4. For simple questions: answer in 40-80 words. For complex questions or lists: up to 150 words maximum.\n"
+            "5. Do NOT use markdown headers (no ###, ##, #). Do not use horizontal rules (---). Use plain sentences.\n"
+            "6. Bold (**) is acceptable only for project names or key numbers. Use sparingly.\n"
+            "7. When listing projects: use a simple table or bullet points. No long paragraphs for each item.\n"
+            "8. Recommendations must be specific and actionable (e.g. 'Review PRJ1459 first — it has the longest delay at 790 days.').\n"
+            "9. Explain numbers in plain words (e.g. '340 days late — that is about 11 months').\n"
+            "10. NEVER use these phrases: 'telemetry', 'nodal', 'EPC contractor', 'capex deployment', 'ministerial directive', 'systemic slippage', 'mandate', 'governance SLA'."
         )
 
-        prompt = f"""
-USER QUESTION: {query}
+        prompt = f"""QUESTION: {query}
 
-AUTHORIZED PROJECT/PORTFOLIO CONTEXT:
+PROJECT DATA (use only this — do not add anything not here):
 {json.dumps(project_context, indent=2, default=str)}
 
-Please provide a comprehensive, executive-grade natural language briefing answering the user's query.
-"""
+EXAMPLE OF A GOOD ANSWER (short, plain, direct):
+Question: "Which projects need urgent attention?"
+Good answer: "There are 705 critical-risk projects right now, averaging 11 months of delay. Start with PRJ1459, PRJ0319, and PRJ0573 — these have the longest delays and highest costs at risk. Open their detail pages and assign recovery targets."
+
+EXAMPLE OF A BAD ANSWER (do not do this):
+"### Direct Answer
+Based on the current national infrastructure telemetry, 705 critical projects require immediate ministerial intervention. The portfolio exhibits systemic schedule slippage...
+### Key Project Facts
+* **Total Monitored Projects:** 1,981"
+
+Now answer the actual QUESTION above. Plain English only. No headers. No long introductions. Maximum 150 words."""
+
 
         try:
             models_to_try = [
@@ -101,8 +115,8 @@ Please provide a comprehensive, executive-grade natural language briefing answer
                         contents=prompt,
                         config={
                             "system_instruction": system_instruction,
-                            "temperature": 0.2,
-                            "max_output_tokens": 1500,
+                            "temperature": 0.3,
+                            "max_output_tokens": 600,
                         }
                     )
                     if response and response.text:
@@ -116,8 +130,14 @@ Please provide a comprehensive, executive-grade natural language briefing answer
                     logger.error(f"All Gemini models failed: {str(last_err)}")
                 return None
 
+            clean_answer = response.text.strip()
+            # Clean up artificial headers if the model generated them
+            for prefix in ["### Direct Answer\n", "### Direct Answer\r\n", "## Direct Answer\n", "# Direct Answer\n"]:
+                if clean_answer.startswith(prefix):
+                    clean_answer = clean_answer[len(prefix):].strip()
+
             return {
-                "answer": response.text.strip(),
+                "answer": clean_answer,
                 "intent": project_context.get("intent", "GENERAL_QUERY"),
                 "citations": project_context.get("citations", []),
                 "suggested_actions": project_context.get("suggested_actions", [
@@ -155,17 +175,14 @@ Please provide a comprehensive, executive-grade natural language briefing answer
             return None
 
         system_instruction = (
-            "You are an AI Infrastructure Analyst for INFRALYTIX. "
-            "Your task is to explain a What-If Scenario simulation result for a major infrastructure project. "
-            "You MUST evaluate and explain the THREE AUTHORITATIVE RATINGS:\n"
-            "1. Health Score & Status (Health Rating)\n"
-            "2. Predicted Schedule Lags (Schedule Delay Rating)\n"
-            "3. Projected Final Outlay & Overrun (Cost/Capex Rating)\n"
-            "and also explain the Risk Level & Score.\n\n"
-            "CRITICAL CONSTRAINTS:\n"
-            "- Do NOT alter or overwrite any numerical values or ratings supplied by the simulation engine.\n"
-            "- Ground all reasons in the exact baseline vs scenario numbers provided.\n"
-            "- Explain why each rating changed, whether the delta is favorable or unfavorable, and what uncertainties remain.\n"
+            "You are the INFRALYTIX AI Copilot explaining a What-If simulation result for an infrastructure project. "
+            "Write in clear, simple English that is easy for anyone to understand.\n"
+            "RULES:\n"
+            "- Do NOT change any numbers, ratings, or scores from the simulation data.\n"
+            "- Explain each rating in plain words: what it means and why it changed.\n"
+            "- Keep the 'summary' to 1-2 short, clear sentences.\n"
+            "- Keep 'reason' fields under 40 words each — explain the cause simply.\n"
+            "- Keep 'recommended_action' fields practical and direct (one sentence).\n"
             "- You MUST output a strict JSON object matching the requested schema."
         )
 

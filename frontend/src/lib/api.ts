@@ -68,6 +68,10 @@ export const projectsAPI = {
     state?: string; status?: string; risk_level?: string;
     page?: number; limit?: number;
   }) => api.get('/projects', { params }),
+  gisMarkers: (params?: {
+    search?: string; ministry?: string; sector?: string;
+    state?: string; status?: string; risk_level?: string;
+  }) => api.get('/projects/gis-markers', { params }),
   get: (id: string) => api.get(`/projects/${id}`),
   create: (data: Record<string, unknown>) => api.post('/projects', data),
   update: (id: string, data: Record<string, unknown>) => api.put(`/projects/${id}`, data),

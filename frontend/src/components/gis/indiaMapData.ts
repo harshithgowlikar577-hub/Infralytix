@@ -1,4 +1,4 @@
-// Accurate India GIS Map Data (35 States & UTs)
+// Accurate India GIS Map Data (36 States & UTs)
 // Conformal projection calibrated to standard Surveyor General of India layout
 
 export interface IndiaStatePath {
@@ -7,6 +7,191 @@ export interface IndiaStatePath {
   d: string;
   cx: number;
   cy: number;
+}
+
+const STATE_CANONICAL_MAP: Record<string, string> = {
+  'IN-AN': 'Andaman & Nicobar Islands',
+  'AN': 'Andaman & Nicobar Islands',
+  'ANDAMAN': 'Andaman & Nicobar Islands',
+  'ANDAMAN AND NICOBAR': 'Andaman & Nicobar Islands',
+  'ANDAMAN AND NICOBAR ISLANDS': 'Andaman & Nicobar Islands',
+  'ANDAMAN & NICOBAR': 'Andaman & Nicobar Islands',
+  'ANDAMAN & NICOBAR ISLANDS': 'Andaman & Nicobar Islands',
+
+  'IN-AP': 'Andhra Pradesh',
+  'AP': 'Andhra Pradesh',
+  'ANDHRA PRADESH': 'Andhra Pradesh',
+
+  'IN-AR': 'Arunachal Pradesh',
+  'AR': 'Arunachal Pradesh',
+  'ARUNACHAL PRADESH': 'Arunachal Pradesh',
+
+  'IN-AS': 'Assam',
+  'AS': 'Assam',
+  'ASSAM': 'Assam',
+
+  'IN-BR': 'Bihar',
+  'BR': 'Bihar',
+  'BIHAR': 'Bihar',
+
+  'IN-CH': 'Chandigarh',
+  'CH': 'Chandigarh',
+  'CHANDIGARH': 'Chandigarh',
+
+  'IN-CT': 'Chhattisgarh',
+  'IN-CG': 'Chhattisgarh',
+  'CG': 'Chhattisgarh',
+  'CT': 'Chhattisgarh',
+  'CHHATTISGARH': 'Chhattisgarh',
+
+  'IN-DH': 'Dadra and Nagar Haveli and Daman and Diu',
+  'IN-DD': 'Dadra and Nagar Haveli and Daman and Diu',
+  'IN-DN': 'Dadra and Nagar Haveli and Daman and Diu',
+  'DN': 'Dadra and Nagar Haveli and Daman and Diu',
+  'DD': 'Dadra and Nagar Haveli and Daman and Diu',
+  'DAMAN & DIU': 'Dadra and Nagar Haveli and Daman and Diu',
+  'DAMAN AND DIU': 'Dadra and Nagar Haveli and Daman and Diu',
+  'DADRA & NAGAR HAVELI': 'Dadra and Nagar Haveli and Daman and Diu',
+  'DADRA AND NAGAR HAVELI': 'Dadra and Nagar Haveli and Daman and Diu',
+  'DADRA AND NAGAR HAVELI AND DAMAN AND DIU': 'Dadra and Nagar Haveli and Daman and Diu',
+  'DADRA & NAGAR HAVELI AND DAMAN & DIU': 'Dadra and Nagar Haveli and Daman and Diu',
+
+  'IN-DL': 'Delhi',
+  'DL': 'Delhi',
+  'NCT OF DELHI': 'Delhi',
+  'DELHI': 'Delhi',
+
+  'IN-GA': 'Goa',
+  'GA': 'Goa',
+  'GOA': 'Goa',
+
+  'IN-GJ': 'Gujarat',
+  'GJ': 'Gujarat',
+  'GUJARAT': 'Gujarat',
+
+  'IN-HR': 'Haryana',
+  'HR': 'Haryana',
+  'HARYANA': 'Haryana',
+
+  'IN-HP': 'Himachal Pradesh',
+  'HP': 'Himachal Pradesh',
+  'HIMACHAL PRADESH': 'Himachal Pradesh',
+
+  'IN-JK': 'Jammu & Kashmir',
+  'JK': 'Jammu & Kashmir',
+  'JAMMU AND KASHMIR': 'Jammu & Kashmir',
+  'JAMMU & KASHMIR': 'Jammu & Kashmir',
+
+  'IN-JH': 'Jharkhand',
+  'JH': 'Jharkhand',
+  'JHARKHAND': 'Jharkhand',
+
+  'IN-KA': 'Karnataka',
+  'KA': 'Karnataka',
+  'KARNATAKA': 'Karnataka',
+
+  'IN-KL': 'Kerala',
+  'KL': 'Kerala',
+  'KERALA': 'Kerala',
+
+  'IN-LA': 'Ladakh',
+  'LA': 'Ladakh',
+  'LADAKH': 'Ladakh',
+
+  'IN-LD': 'Lakshadweep',
+  'LD': 'Lakshadweep',
+  'LAKSHADWEEP': 'Lakshadweep',
+
+  'IN-MP': 'Madhya Pradesh',
+  'MP': 'Madhya Pradesh',
+  'MADHYA PRADESH': 'Madhya Pradesh',
+
+  'IN-MH': 'Maharashtra',
+  'MH': 'Maharashtra',
+  'MAHARASHTRA': 'Maharashtra',
+
+  'IN-MN': 'Manipur',
+  'MN': 'Manipur',
+  'MANIPUR': 'Manipur',
+
+  'IN-ML': 'Meghalaya',
+  'ML': 'Meghalaya',
+  'MEGHALAYA': 'Meghalaya',
+
+  'IN-MZ': 'Mizoram',
+  'MZ': 'Mizoram',
+  'MIZORAM': 'Mizoram',
+
+  'IN-NL': 'Nagaland',
+  'NL': 'Nagaland',
+  'NAGALAND': 'Nagaland',
+
+  'IN-OR': 'Odisha',
+  'IN-OD': 'Odisha',
+  'OD': 'Odisha',
+  'OR': 'Odisha',
+  'ORISSA': 'Odisha',
+  'ODISHA': 'Odisha',
+
+  'IN-PY': 'Puducherry',
+  'PY': 'Puducherry',
+  'PONDICHERRY': 'Puducherry',
+  'PUDUCHERRY': 'Puducherry',
+
+  'IN-PB': 'Punjab',
+  'PB': 'Punjab',
+  'PUNJAB': 'Punjab',
+
+  'IN-RJ': 'Rajasthan',
+  'RJ': 'Rajasthan',
+  'RAJASTHAN': 'Rajasthan',
+
+  'IN-SK': 'Sikkim',
+  'SK': 'Sikkim',
+  'SIKKIM': 'Sikkim',
+
+  'IN-TN': 'Tamil Nadu',
+  'TN': 'Tamil Nadu',
+  'TAMIL NADU': 'Tamil Nadu',
+
+  'IN-TG': 'Telangana',
+  'IN-TS': 'Telangana',
+  'TG': 'Telangana',
+  'TS': 'Telangana',
+  'TELANGANA': 'Telangana',
+
+  'IN-TR': 'Tripura',
+  'TR': 'Tripura',
+  'TRIPURA': 'Tripura',
+
+  'IN-UP': 'Uttar Pradesh',
+  'UP': 'Uttar Pradesh',
+  'UTTAR PRADESH': 'Uttar Pradesh',
+
+  'IN-UT': 'Uttarakhand',
+  'IN-UK': 'Uttarakhand',
+  'UK': 'Uttarakhand',
+  'UT': 'Uttarakhand',
+  'UTTARANCHAL': 'Uttarakhand',
+  'UTTARAKHAND': 'Uttarakhand',
+
+  'IN-WB': 'West Bengal',
+  'WB': 'West Bengal',
+  'WEST BENGAL': 'West Bengal'
+};
+
+export function normalizeStateName(input: string | null | undefined): string {
+  if (!input) return 'Unassigned';
+  const cleaned = input
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9\s-&]/g, '')
+    .replace(/\s+/g, ' ');
+
+  if (STATE_CANONICAL_MAP[cleaned]) {
+    return STATE_CANONICAL_MAP[cleaned];
+  }
+  return input.trim();
 }
 
 export const INDIA_MAP_VIEWBOX = '0 0 800 900';
@@ -74,18 +259,11 @@ export const INDIA_STATES: IndiaStatePath[] = [
     "cy": 490
   },
   {
-    "id": "DADRA_AND_NAGAR_HAVELI",
-    "name": "Dadra and Nagar Haveli",
-    "d": "M 157.6,491.0 L 160.4,489.2 L 160.6,490.7 L 162.2,490.5 L 159.4,493.4 L 159.9,494.6 L 163.4,493.8 L 162.7,497.1 L 157.5,495.7 L 155.9,491.5 L 157.6,491.0 Z",
-    "cx": 159.7,
-    "cy": 492.6
-  },
-  {
-    "id": "DAMAN_AND_DIU",
-    "name": "Daman & Diu",
-    "d": "M 154.4,486.3 L 154.8,488.7 L 153.5,488.9 L 154.4,486.3 Z M 107.4,479.3 L 108.7,479.8 L 106.1,480.0 L 107.4,479.3 Z M 103.0,473.3 L 104.9,473.0 L 106.3,474.8 L 104.2,476.2 L 106.2,476.9 L 104.7,480.5 L 100.7,478.7 L 102.2,472.6 L 103.0,473.3 Z",
-    "cx": 116.6,
-    "cy": 479.3
+    "id": "DADRA_AND_NAGAR_HAVELI_AND_DAMAN_AND_DIU",
+    "name": "Dadra and Nagar Haveli and Daman and Diu",
+    "d": "M 157.6,491.0 L 160.4,489.2 L 160.6,490.7 L 162.2,490.5 L 159.4,493.4 L 159.9,494.6 L 163.4,493.8 L 162.7,497.1 L 157.5,495.7 L 155.9,491.5 L 157.6,491.0 Z M 154.4,486.3 L 154.8,488.7 L 153.5,488.9 L 154.4,486.3 Z M 107.4,479.3 L 108.7,479.8 L 106.1,480.0 L 107.4,479.3 Z M 103.0,473.3 L 104.9,473.0 L 106.3,474.8 L 104.2,476.2 L 106.2,476.9 L 104.7,480.5 L 100.7,478.7 L 102.2,472.6 L 103.0,473.3 Z",
+    "cx": 140.0,
+    "cy": 486.0
   },
   {
     "id": "DELHI",
@@ -149,6 +327,13 @@ export const INDIA_STATES: IndiaStatePath[] = [
     "d": "M 241.7,775.3 L 241.0,776.1 L 241.7,775.3 Z M 240.2,767.1 L 240.7,768.2 L 240.2,767.1 Z M 238.0,764.5 L 238.8,765.7 L 238.0,764.5 Z M 237.5,763.4 L 237.7,764.4 L 237.5,763.4 Z M 210.9,707.9 L 211.5,709.4 L 210.9,707.9 Z M 210.3,705.8 L 210.7,706.9 L 210.3,705.8 Z M 210.1,705.3 L 210.9,707.8 L 210.1,705.3 Z M 206.9,689.9 L 208.2,693.3 L 210.7,692.8 L 212.5,695.8 L 215.0,695.2 L 213.6,696.1 L 215.3,698.6 L 217.2,697.6 L 216.0,700.0 L 217.3,703.2 L 218.9,703.2 L 221.2,706.8 L 226.5,708.8 L 228.5,712.3 L 234.2,711.5 L 234.4,714.9 L 236.1,714.4 L 239.8,717.9 L 241.6,717.3 L 242.2,720.5 L 237.1,722.3 L 237.5,725.1 L 244.8,727.9 L 242.7,732.5 L 249.4,731.7 L 248.5,733.4 L 251.0,736.1 L 248.9,736.4 L 247.5,739.3 L 253.6,743.3 L 253.0,747.1 L 251.3,747.2 L 251.7,755.9 L 255.4,758.2 L 261.6,754.7 L 263.0,758.3 L 262.5,760.6 L 260.7,761.3 L 262.6,764.7 L 259.9,774.2 L 264.5,774.5 L 265.9,777.1 L 262.7,782.5 L 262.3,786.5 L 259.4,789.9 L 262.1,793.8 L 259.9,797.2 L 262.6,802.4 L 260.7,803.7 L 260.1,808.5 L 258.4,808.9 L 255.5,806.6 L 245.0,792.8 L 243.6,785.7 L 241.9,783.7 L 242.9,786.6 L 239.9,779.2 L 237.4,764.7 L 238.8,765.9 L 238.6,768.2 L 239.4,767.0 L 240.1,771.4 L 239.4,767.2 L 240.7,768.5 L 240.3,776.3 L 243.4,776.7 L 241.8,775.3 L 240.8,767.3 L 236.6,759.9 L 237.1,764.4 L 233.2,749.3 L 232.6,748.5 L 232.5,750.2 L 229.4,742.8 L 228.1,733.6 L 222.2,724.6 L 218.6,717.0 L 219.3,716.1 L 218.1,716.8 L 214.3,712.2 L 216.8,713.0 L 216.2,711.9 L 213.5,710.6 L 215.2,710.5 L 214.6,708.0 L 216.9,707.1 L 212.5,708.0 L 211.9,710.6 L 211.4,708.6 L 212.4,708.9 L 203.7,690.8 L 206.9,689.9 Z",
     "cx": 275,
     "cy": 780
+  },
+  {
+    "id": "LADAKH",
+    "name": "Ladakh",
+    "d": "M 278.2,89.9 L 304.8,118.9 L 318.6,160.9 L 318.7,164.7 L 312.9,167.8 L 310.3,167.2 L 307.8,170.9 L 304.7,171.7 L 299.9,168.2 L 299.0,162.3 Z",
+    "cx": 310.0,
+    "cy": 95.0
   },
   {
     "id": "LAKSHADWEEP",
@@ -240,6 +425,13 @@ export const INDIA_STATES: IndiaStatePath[] = [
     "d": "M 303.8,785.4 L 302.8,785.5 L 303.8,785.4 Z M 312.9,781.5 L 316.1,786.1 L 310.5,783.5 L 312.9,781.5 Z M 331.7,670.3 L 335.8,671.8 L 337.5,674.5 L 337.6,672.9 L 337.9,674.5 L 337.9,672.5 L 336.1,690.1 L 333.7,698.4 L 330.3,701.7 L 331.4,701.4 L 328.5,704.9 L 330.0,704.0 L 325.9,712.3 L 323.4,713.2 L 323.7,711.1 L 322.0,710.2 L 321.1,711.4 L 323.1,713.6 L 321.5,714.3 L 324.9,715.8 L 323.9,722.3 L 325.9,727.8 L 326.1,730.8 L 325.0,731.0 L 326.1,730.8 L 326.3,737.8 L 323.3,737.6 L 322.6,739.4 L 326.2,742.2 L 327.0,755.7 L 323.5,756.5 L 324.4,755.7 L 320.9,755.3 L 320.7,754.1 L 318.8,755.5 L 323.4,756.4 L 318.2,755.7 L 319.7,754.9 L 318.7,754.5 L 312.5,756.8 L 310.9,759.9 L 311.8,762.7 L 304.8,772.0 L 302.8,777.3 L 306.1,781.8 L 310.0,782.8 L 301.2,783.1 L 296.9,786.1 L 289.7,787.8 L 284.8,793.4 L 284.6,796.3 L 286.4,796.9 L 283.3,799.5 L 283.9,803.6 L 282.3,806.9 L 270.3,813.2 L 269.7,814.7 L 263.9,813.5 L 258.4,808.9 L 260.1,808.5 L 260.7,803.7 L 262.6,802.5 L 259.9,797.2 L 262.1,793.8 L 259.4,789.9 L 262.3,786.5 L 262.7,782.5 L 265.9,777.1 L 264.5,774.5 L 259.9,774.2 L 262.6,764.7 L 260.8,761.2 L 262.5,760.6 L 263.0,758.3 L 261.6,754.7 L 255.4,758.2 L 251.7,755.9 L 251.3,747.2 L 253.0,747.1 L 253.6,743.3 L 247.5,739.3 L 248.9,736.4 L 251.0,736.1 L 248.5,733.4 L 249.4,731.7 L 242.7,732.5 L 244.8,727.9 L 237.5,725.1 L 237.1,722.3 L 244.0,718.8 L 245.3,721.1 L 252.1,722.0 L 253.7,716.5 L 256.2,716.0 L 258.8,718.4 L 258.7,717.0 L 262.1,716.0 L 266.4,717.4 L 268.0,712.5 L 272.5,712.3 L 275.0,707.9 L 273.8,706.2 L 268.0,705.7 L 267.5,704.3 L 271.0,701.2 L 270.6,693.3 L 274.1,693.2 L 276.4,688.0 L 278.8,687.5 L 278.5,689.0 L 279.4,688.2 L 280.2,689.7 L 281.9,688.4 L 286.1,690.8 L 285.4,692.7 L 291.9,694.5 L 292.6,691.3 L 294.2,692.6 L 296.6,686.4 L 295.8,684.8 L 298.0,682.8 L 302.2,682.0 L 303.4,683.8 L 303.2,682.5 L 304.8,682.2 L 309.0,684.1 L 310.6,680.7 L 312.8,681.7 L 315.7,679.3 L 314.5,676.2 L 315.8,675.7 L 319.5,677.7 L 321.7,676.8 L 323.6,679.1 L 324.6,678.3 L 323.0,677.0 L 328.0,675.3 L 328.9,672.3 L 330.7,671.4 L 329.6,670.3 L 331.7,670.3 Z",
     "cx": 330,
     "cy": 750
+  },
+  {
+    "id": "TELANGANA",
+    "name": "Telangana",
+    "d": "M 310.8,512.9 L 329.2,514.6 L 338.2,536.2 L 349.2,545.0 L 358.3,555.7 L 349.2,545.1 L 341.8,535.1 L 336.4,525.6 L 324.6,509.5 Z",
+    "cx": 335.0,
+    "cy": 575.0
   },
   {
     "id": "TRIPURA",

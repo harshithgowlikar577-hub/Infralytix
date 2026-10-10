@@ -811,3 +811,17 @@ html.light .ref-card:hover {
     background: #E2E8F0 !important;
   }
 }
+
+/* ============================================================
+   Tab Navigation & Horizontal Scroll Utility
+   ============================================================ */
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+

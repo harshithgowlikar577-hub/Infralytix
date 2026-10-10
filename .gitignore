@@ -51,3 +51,6 @@ backend/trained_models/
 
 # Uploads
 backend/uploads/
+
+# Scratch scripts
+scratch/

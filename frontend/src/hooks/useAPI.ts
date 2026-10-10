@@ -65,6 +65,16 @@ export function useProjects(params?: {
     queryFn: () => projectsAPI.list(params).then(r => r.data),
   });
 }
+export function useGISMarkers(params?: {
+  search?: string; ministry?: string; sector?: string;
+  state?: string; status?: string; risk_level?: string;
+}) {
+  return useQuery({
+    queryKey: ['projects', 'gis-markers', params],
+    queryFn: () => projectsAPI.gisMarkers(params).then(r => r.data),
+    staleTime: 5 * 60 * 1000,
+  });
+}
 export function useProject(id: string) {
   return useQuery({
     queryKey: ['project', id],

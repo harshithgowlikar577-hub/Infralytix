@@ -119,25 +119,19 @@ def query_copilot(payload: CopilotRequest, db: Session = Depends(get_db)):
             p1_overrun = round(((p1.current_cost - p1.original_cost) / max(p1.original_cost, 1.0)) * 100, 1)
             p2_overrun = round(((p2.current_cost - p2.original_cost) / max(p2.original_cost, 1.0)) * 100, 1)
 
-            answer = f"""### 📊 Comparative Analysis: {p1.project_id} vs {p2.project_id}
+            answer = f"""Here's a comparison between these two projects:
 
-| Metric | **{p1.project_id}** ({p1.sector}) | **{p2.project_id}** ({p2.sector}) |
+| | {p1.project_id} | {p2.project_id} |
 | :--- | :--- | :--- |
-| **Project Name** | {p1.project_name} | {p2.project_name} |
-| **State / Ministry** | {p1.state} / {p1.ministry} | {p2.state} / {p2.ministry} |
-| **Current Outlay** | ₹{p1.current_cost:,.2f} Cr (+{p1_overrun}%) | ₹{p2.current_cost:,.2f} Cr (+{p2_overrun}%) |
-| **Schedule Delay** | {p1.delay_days} days ({round(p1.delay_days/30.4, 1)} mos) | {p2.delay_days} days ({round(p2.delay_days/30.4, 1)} mos) |
-| **Physical Progress** | {p1.progress_percentage:.1f}% | {p2.progress_percentage:.1f}% |
-| **Risk Classification** | **{p1.risk_level}** | **{p2.risk_level}** |
+| Name | {p1.project_name} | {p2.project_name} |
+| Sector | {p1.sector} | {p2.sector} |
+| State | {p1.state} | {p2.state} |
+| Cost | ₹{p1.current_cost:,.1f} Cr (+{p1_overrun}%) | ₹{p2.current_cost:,.1f} Cr (+{p2_overrun}%) |
+| Delay | {p1.delay_days} days | {p2.delay_days} days |
+| Progress | {p1.progress_percentage:.1f}% | {p2.progress_percentage:.1f}% |
+| Risk | {p1.risk_level} | {p2.risk_level} |
 
-#### 🔍 Strategic Differential Diagnostics:
-- **Execution Trajectory**: **{p1.project_id if p1.progress_percentage > p2.progress_percentage else p2.project_id}** exhibits superior physical milestone realization ({max(p1.progress_percentage, p2.progress_percentage):.1f}% vs {min(p1.progress_percentage, p2.progress_percentage):.1f}%).
-- **Capital Exposure**: **{p1.project_id if p1.current_cost > p2.current_cost else p2.project_id}** represents the larger capital exposure (₹{max(p1.current_cost, p2.current_cost):,.2f} Cr).
-- **Critical Path Bottleneck**: **{p1.project_id if p1.delay_days > p2.delay_days else p2.project_id}** has accumulated higher schedule slippage ({max(p1.delay_days, p2.delay_days)} days).
-
-#### ⚡ Ministerial Directive:
-1. Prioritize contractual audit on **{p1.project_id if p1.delay_days > p2.delay_days else p2.project_id}** to stem schedule erosion.
-2. Conduct milestone verification on **{p1.project_id if p1.current_cost > p2.current_cost else p2.project_id}** to ensure capex deployment efficiency."""
+**{p1.project_id if p1.progress_percentage > p2.progress_percentage else p2.project_id}** is ahead on physical progress ({max(p1.progress_percentage, p2.progress_percentage):.1f}%). **{p1.project_id if p1.delay_days > p2.delay_days else p2.project_id}** has a larger delay ({max(p1.delay_days, p2.delay_days)} days) and should be reviewed first."""
 
             citations = [
                 {"project_id": p.project_id, "project_name": p.project_name, "cost_cr": p.current_cost, "delay_days": p.delay_days, "risk": p.risk_level}
@@ -193,28 +187,17 @@ def query_copilot(payload: CopilotRequest, db: Session = Depends(get_db)):
             else:
                 root_cause = "Contractor workforce remobilization deficit and working capital constraints."
 
-            answer = f"""### 🛡️ Project Dossier Briefing: {project.project_id}
-**{project.project_name}**
+            answer = f"""**{project.project_name}** ({project.project_id})
 
-- **Administrative Oversight**: {project.ministry} ({project.implementing_agency or 'Central PMU'})
-- **Geographic Location**: {project.state}{f', {project.district}' if project.district else ''}
-- **Sector**: {project.sector}
-- **Current Status**: **{project.status}** | **Risk Level**: **{project.risk_level}**
+- Status: {project.status}
+- Risk: {project.risk_level}
+- Location: {project.state}{f', {project.district}' if project.district else ''} | Sector: {project.sector}
+- Cost: ₹{project.original_cost:,.1f} Cr approved → ₹{project.current_cost:,.1f} Cr current (+₹{overrun_cr:,.1f} Cr, {overrun_pct}% over budget)
+- Spent so far: ₹{project.expenditure:,.1f} Cr ({round((project.expenditure/max(project.current_cost, 1.0))*100, 1)}% of budget used)
+- Delay: {project.delay_days} days ({delay_mos} months behind schedule)
+- Physical progress: {project.progress_percentage:.1f}% complete
 
-#### 📈 Financial & Schedule Telemetry:
-- **Sanctioned Outlay**: ₹{project.original_cost:,.2f} Cr ➔ **Revised Cost**: ₹{project.current_cost:,.2f} Cr (**+₹{overrun_cr:,.2f} Cr / +{overrun_pct}% overrun**)
-- **Cumulative Expenditure**: ₹{project.expenditure:,.2f} Cr ({round((project.expenditure/max(project.current_cost, 1.0))*100, 1)}% budget utilized)
-- **Schedule Slippage**: **{project.delay_days} days** ({delay_mos} months)
-- **Physical Progress**: **{project.progress_percentage:.1f}%** complete
-
-#### ⚠️ Primary Root Bottleneck:
-> **{root_cause}**
-> Dynamic risk engine flags an elevated probability of further milestone divergence unless nodal intervention is executed within 14 business days.
-
-#### 🎯 Recommended Action Directives:
-1. **Contractual**: Dispatch an expedited cure notice to lead EPC contractor with strict 30-day recovery milestones.
-2. **Statutory**: Convene bilateral nodal meeting with {project.state} State Administration for RoW unblocking.
-3. **Financial**: Impose strict expenditure verification milestones prior to releasing subsequent quarterly grant tranches."""
+This project is {project.risk_level.lower()} risk. It needs close monitoring and a clear plan to recover the schedule."""
 
             citations = [{
                 "project_id": project.project_id,
@@ -279,26 +262,15 @@ def query_copilot(payload: CopilotRequest, db: Session = Depends(get_db)):
                 for p in top_critical
             ])
 
-            answer = f"""### 📍 Executive State Intelligence: {state_name}
-**Cabinet Alert — Regional Infrastructure Health & Risk Dynamics**
+            answer = f"""{state_name} has {total_st_proj} monitored projects with a total outlay of ₹{total_st_cost:,.0f} Crore. On average, projects are delayed by {avg_st_delay} days. There are {len(critical_st)} critical-risk and {len(high_st)} high-risk projects.
 
-- **Total Monitored Portfolio**: **{total_st_proj} Projects**
-- **Total Capital Commitment**: **₹{total_st_cost:,.2f} Crore**
-- **Average Schedule Slippage**: **{avg_st_delay} days** ({round(avg_st_delay/30.4, 1)} months)
-- **High-Risk Exposure**: **{len(critical_st)} Critical** / **{len(high_st)} High Risk** projects
+Projects needing the most attention:
 
-#### 🚨 Critical Assets Requiring Immediate Nodal Triage:
-| ID | Asset Name | Current Cost | Delay | Risk |
+| ID | Name | Cost | Delay | Risk |
 | :--- | :--- | :--- | :--- | :--- |
 {proj_table}
 
-#### 🔍 Systemic State-Level Bottlenecks:
-1. **Land Acquisition & RoW Deadlocks**: Cross-district linear alignment packages facing revenue survey disputes and forest clearance renewals.
-2. **Inter-Departmental Utility Shifting**: Power grid line relocations and water supply pipeline diversions lagging civil work tenders by 60–90 days.
-3. **Contractor Cashflow Stagnation**: Delayed milestone verification by regional Project Management Units affecting subcontractor liquidity.
-
-#### ⚡ Ministerial Action Directive:
-- Convene a Joint Coordination Taskforce between **Union Line Ministries** and the **Chief Secretary of {state_name}** within 10 days to resolve stalled land parcels."""
+Common issues include land acquisition delays, contractor funding problems, and slow approvals for utility shifts. Review the critical projects and set clear deadlines for each."""
 
             citations = [
                 {"project_id": p.project_id, "project_name": p.project_name, "cost_cr": p.current_cost, "delay_days": p.delay_days, "risk": p.risk_level}
@@ -344,21 +316,18 @@ def query_copilot(payload: CopilotRequest, db: Session = Depends(get_db)):
             for i, p in enumerate(critical_projects)
         ])
 
-        answer = f"""### 🚨 Top 10 High-Priority Assets Requiring Cabinet Intervention
-**Telemetry derived from 1,981 projects under central surveillance**
+        answer = f"""Here are the 10 projects that need the most attention right now, based on delay and cost:
 
-- **Aggregate Capital at Stake**: **₹{total_capex:,.2f} Crore**
-- **Average Slippage in Top 10**: **{round(sum(p.delay_days for p in critical_projects)/10, 1)} days**
-- **Mandated Governance SLA**: **Immediate Ministerial Review (0–48 Hours)**
-
-| # | ID | Asset Name | Sector | Cost (₹ Cr) | Delay | Risk |
+| # | ID | Name | Sector | Cost | Delay | Risk |
 | :- | :--- | :--- | :--- | :--- | :--- | :--- |
 {table_rows}
 
-#### ⚡ Strategic Action Protocol:
-1. **Emergency Inter-Ministerial Taskforce**: Convene meeting with MoRTH, Railways, and Power Secretaries.
-2. **Contractor Acceleration Packages**: Enact liquidated damage clauses while unlocking contractor mobilization escrow accounts.
-3. **Empowered Group of Secretaries (EGoS)**: Escalate statutory RoW clearance bottlenecks to Cabinet Secretariat."""
+Total outlay for these 10 projects: ₹{total_capex:,.0f} Crore.
+
+Suggested next steps:
+- Open each project's detail page to check the specific issues.
+- Focus on the highest-delay projects first and assign recovery deadlines.
+- Use the Early Warnings page to see which ones have active alerts."""
 
         citations = [
             {"project_id": p.project_id, "project_name": p.project_name, "cost_cr": p.current_cost, "delay_days": p.delay_days, "risk": p.risk_level}
@@ -401,25 +370,15 @@ def query_copilot(payload: CopilotRequest, db: Session = Depends(get_db)):
             for p in strategic
         ])
 
-        answer = f"""### 🎯 National Infrastructure Threat Analysis: 2030 PM GatiShakti Targets
-**High-Capital Corridors Endangering Master Plan Logistics Benchmarks**
+        answer = f"""These are the largest projects (over ₹{1000:.0f} Crore) that are seriously delayed (6+ months) and could affect national infrastructure targets:
 
-- **Total High-Value Capex Threat**: **₹{total_threatened_capex:,.2f} Crore** across {len(strategic)} mega corridors
-- **Target Logistic Cost Goal**: Reduction from 14% to 8% of GDP by 2030
-- **Primary Risk Factor**: Multi-modal multimodal freight corridors and high-speed feeder spines experiencing compounding delivery lags.
-
-#### 🏗️ Flagship Megaprojects at Risk:
-| ID | Corridor Name | Sector | Capital | Delay | Risk |
+| ID | Name | Sector | Cost | Delay | Risk |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 {table_rows}
 
-#### 🔍 Systemic Structural Constraints:
-1. **Last-Mile Multimodal Integration**: Rail-road-port intermodal transshipment yards are lagging behind mainline civil works by 9–14 months.
-2. **Right-of-Way Synchronisation**: Linear infrastructure packages lack synchronized environmental NOCs across state boundaries.
+Total outlay at risk: ₹{total_threatened_capex:,.0f} Crore across {len(strategic)} major projects.
 
-#### ⚡ Strategic Directives:
-- Fast-track EGoS (Empowered Group of Secretaries) review under the PM GatiShakti National Master Plan.
-- Enforce mandatory quarterly milestone compliance for contractors deployed on mega logistics nodes."""
+To get back on track: review each project's specific delays, confirm what approvals are still pending, and set firm deadlines for resolving them."""
 
         citations = [
             {"project_id": p.project_id, "project_name": p.project_name, "cost_cr": p.current_cost, "delay_days": p.delay_days, "risk": p.risk_level}
@@ -464,26 +423,20 @@ def query_copilot(payload: CopilotRequest, db: Session = Depends(get_db)):
 
     cost_overrun_total = max(0.0, float(cur_sum) - float(orig_sum))
 
-    answer = f"""### 🇮🇳 INFRALYTIX National Infrastructure Intelligence Overview
-**Ground truth telemetry across all {total_proj:,} central infrastructure projects**
+    answer = f"""Here's a quick overview of all {total_proj:,} monitored infrastructure projects:
 
-- **Total Active Outlay**: **₹{float(cur_sum):,.2f} Crore**
-- **Net Cost Overrun**: **₹{cost_overrun_total:,.2f} Crore** across national portfolio
-- **Average Schedule Delay**: **{float(avg_delay):.1f} days** ({round(float(avg_delay)/30.4, 1)} months)
-- **High-Risk Exposure**: **{critical_proj} Critical** ({round(critical_proj/max(total_proj,1)*100, 1)}%) & **{high_proj} High Risk** projects
-- **Schedule Breach Ratio**: **{delayed_proj} of {total_proj}** ({round(delayed_proj/max(total_proj,1)*100, 1)}%) projects delayed
+- Total current outlay: ₹{float(cur_sum):,.0f} Crore
+- Cost over original budget: ₹{cost_overrun_total:,.0f} Crore
+- Average delay: {float(avg_delay):.0f} days ({round(float(avg_delay)/30.4, 1)} months)
+- Projects at critical risk: {critical_proj} ({round(critical_proj/max(total_proj,1)*100, 1)}%)
+- Projects at high risk: {high_proj}
+- Delayed projects: {delayed_proj} out of {total_proj}
 
-#### 🚨 Sample Critical Assets Monitored:
+Some critical projects to look at first:
 """ + "\n".join([
-        f"- **{p.project_id}** ({p.project_name[:40]}...): Delay of **{p.delay_days} days**, Outlay ₹{p.current_cost:,.1f} Cr ({p.risk_level} Risk)"
+        f"- {p.project_id}: {p.project_name[:45]} — {p.delay_days} days delayed, ₹{p.current_cost:,.0f} Cr, {p.risk_level} risk"
         for p in sample_critical
-    ]) + """
-
-#### 💡 Recommended Next Actions:
-- Inquire about specific projects using their IDs (e.g. `Summarize PRJ0671`)
-- Query regional performance (e.g. `Why is Rajasthan risk increasing?`)
-- Inquire about sectoral bottlenecks (e.g. `What is the status of Railways?`)
-- Compare two projects (e.g. `Compare PRJ0671 and PRJ0573`)"""
+    ]) + """\n\nTry asking about a specific project (e.g. 'Tell me about PRJ0671'), a state, or a sector for more detail."""
 
     citations = [
         {"project_id": p.project_id, "project_name": p.project_name, "cost_cr": p.current_cost, "delay_days": p.delay_days, "risk": p.risk_level}

@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Minus, Crosshair, MapPin, ExternalLink, ShieldAlert, CheckCircle2, Layers, RotateCcw } from 'lucide-react';
 import { formatCurrency, getRiskBadgeClass } from '../../lib/utils';
-import { INDIA_STATES, projectCoord, IndiaStatePath } from './indiaMapData';
+import { INDIA_STATES, projectCoord, IndiaStatePath, normalizeStateName } from './indiaMapData';
 import { projectsAPI } from '../../lib/api';
 
 export interface ProjectMarker {
@@ -29,18 +29,6 @@ interface IndiaGisMapProps {
   compact?: boolean;
   viewMode?: 'risk' | 'progress' | 'capital';
   onViewModeChange?: (mode: 'risk' | 'progress' | 'capital') => void;
-}
-
-function normalizeStateName(name: string): string {
-  if (!name) return '';
-  const n = name.trim().toLowerCase();
-  if (n.includes('jammu') || n.includes('kashmir')) return 'Jammu & Kashmir';
-  if (n.includes('odisha') || n.includes('orissa')) return 'Odisha';
-  if (n.includes('uttarakhand') || n.includes('uttaranchal')) return 'Uttarakhand';
-  if (n.includes('andaman')) return 'Andaman & Nicobar Islands';
-  if (n.includes('dadra') || n.includes('daman')) return 'Dadra and Nagar Haveli and Daman and Diu';
-  if (n.includes('delhi')) return 'Delhi';
-  return name.trim();
 }
 
 // Marker Risk Color Coding:
@@ -104,15 +92,27 @@ export default function IndiaGisMap({
 
   // Dynamic project fetch from live API if projects prop is not provided or empty
   const [fetchedProjects, setFetchedProjects] = useState<ProjectMarker[]>([]);
+  const [gisMetadata, setGisMetadata] = useState<{ total_projects: number; valid_coordinates_count: number; unmapped_count: number }>({
+    total_projects: 0,
+    valid_coordinates_count: 0,
+    unmapped_count: 0,
+  });
+
   useEffect(() => {
     if (!projects || projects.length === 0) {
       let isMounted = true;
-      projectsAPI.list({ limit: 100 })
+      projectsAPI.gisMarkers()
         .then((res: any) => {
           if (!isMounted) return;
-          const items = res?.data?.items || res?.data?.projects || res?.data || [];
-          if (Array.isArray(items) && items.length > 0) {
-            setFetchedProjects(items.map((it: any) => ({
+          const data = res?.data || {};
+          const markers = data?.markers || [];
+          setGisMetadata({
+            total_projects: data.total_projects || markers.length,
+            valid_coordinates_count: data.valid_coordinates_count || markers.filter((m: any) => m.has_valid_coords).length,
+            unmapped_count: data.missing_coordinates_count || 0,
+          });
+          if (Array.isArray(markers)) {
+            setFetchedProjects(markers.map((it: any) => ({
               id: it.id || it.project_id,
               project_id: it.project_id || it.id,
               project_name: it.project_name || it.name,
@@ -130,7 +130,7 @@ export default function IndiaGisMap({
           }
         })
         .catch(() => {
-          // Keep default fallback
+          // Silent fallback
         });
       return () => {
         isMounted = false;
@@ -170,25 +170,21 @@ export default function IndiaGisMap({
     setIsDragging(false);
   };
 
-  // Resolve projects pool
-  const allProjects: ProjectMarker[] = useMemo(() => {
+  // Resolve projects pool from props or backend API
+  const rawProjects: ProjectMarker[] = useMemo(() => {
     if (projects && projects.length > 0) return projects;
-    if (fetchedProjects.length > 0) return fetchedProjects;
-    return [
-      { id: 'INF0001', project_id: 'INF0001', project_name: 'Delhi–Mumbai Expressway Corridor', state: 'Maharashtra', ministry: 'MoRTH', sector: 'Transport & Logistics', latitude: 19.0760, longitude: 72.8777, risk_level: 'Critical', risk_score: 88, progress_percentage: 42, current_cost: 98000 },
-      { id: 'INF0002', project_id: 'INF0002', project_name: 'Western Dedicated Freight Corridor', state: 'Gujarat', ministry: 'Ministry of Railways', sector: 'Transport & Logistics', latitude: 23.0225, longitude: 72.5714, risk_level: 'High', risk_score: 74, progress_percentage: 68, current_cost: 51000 },
-      { id: 'INF0003', project_id: 'INF0003', project_name: 'Eastern Peripheral Highway', state: 'Uttar Pradesh', ministry: 'MoRTH', sector: 'Transport & Logistics', latitude: 28.6139, longitude: 77.2090, risk_level: 'Medium', risk_score: 48, progress_percentage: 84, current_cost: 11000 },
-      { id: 'INF0004', project_id: 'INF0004', project_name: 'Bengaluru Suburban Rail Phase 2', state: 'Karnataka', ministry: 'Ministry of Railways', sector: 'Transport & Logistics', latitude: 12.9716, longitude: 77.5946, risk_level: 'Critical', risk_score: 82, progress_percentage: 29, current_cost: 15767 },
-      { id: 'INF0005', project_id: 'INF0005', project_name: 'Ultra Mega Solar Park Expansion', state: 'Rajasthan', ministry: 'MNRE', sector: 'Energy', latitude: 27.5000, longitude: 72.0000, risk_level: 'Low', risk_score: 22, progress_percentage: 91, current_cost: 8200 },
-      { id: 'INF0006', project_id: 'INF0006', project_name: 'Chennai Port Elevated Corridor', state: 'Tamil Nadu', ministry: 'Ministry of Ports', sector: 'Transport & Logistics', latitude: 13.0827, longitude: 80.2707, risk_level: 'High', risk_score: 76, progress_percentage: 55, current_cost: 5800 },
-      { id: 'INF0007', project_id: 'INF0007', project_name: 'Kolkata Metro Extension Line', state: 'West Bengal', ministry: 'Ministry of Railways', sector: 'Transport & Logistics', latitude: 22.5726, longitude: 88.3639, risk_level: 'High', risk_score: 71, progress_percentage: 62, current_cost: 8600 },
-      { id: 'INF0008', project_id: 'INF0008', project_name: 'Paradip Port Smart Terminal', state: 'Odisha', ministry: 'Ministry of Ports', sector: 'Transport & Logistics', latitude: 20.3160, longitude: 86.6110, risk_level: 'Low', risk_score: 30, progress_percentage: 85, current_cost: 3200 },
-      { id: 'INF0009', project_id: 'INF0009', project_name: 'Brahmaputra Bridge Feeder Road', state: 'Assam', ministry: 'MoRTH', sector: 'Transport & Logistics', latitude: 26.1445, longitude: 91.7362, risk_level: 'Medium', risk_score: 54, progress_percentage: 45, current_cost: 4100 },
-      { id: 'INF0010', project_id: 'INF0010', project_name: 'Kochi Water Metro Integration', state: 'Kerala', ministry: 'MoHUA', sector: 'Water & Sanitation', latitude: 9.9312, longitude: 76.2673, risk_level: 'Low', risk_score: 18, progress_percentage: 96, current_cost: 1137 },
-      { id: 'INF0011', project_id: 'INF0011', project_name: 'Hyderabad Regional Ring Corridor', state: 'Telangana', ministry: 'MoRTH', sector: 'Transport & Logistics', latitude: 17.3850, longitude: 78.4867, risk_level: 'Medium', risk_score: 44, progress_percentage: 72, current_cost: 17000 },
-      { id: 'INF0012', project_id: 'INF0012', project_name: 'Indore-Bhopal Economic Highway', state: 'Madhya Pradesh', ministry: 'MoRTH', sector: 'Transport & Logistics', latitude: 23.2599, longitude: 77.4126, risk_level: 'Low', risk_score: 28, progress_percentage: 88, current_cost: 4500 },
-    ];
+    return fetchedProjects;
   }, [projects, fetchedProjects]);
+
+  // Strict location accuracy validation (Phase 4):
+  // Plotted projects MUST have valid, non-zero, in-bounds coordinates (-90 to 90 lat, -180 to 180 lng)
+  const allProjects: ProjectMarker[] = useMemo(() => {
+    return rawProjects.filter((p) => {
+      const lat = Number(p.latitude);
+      const lng = Number(p.longitude);
+      return !isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0 && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
+    });
+  }, [rawProjects]);
 
   // Filter projects by selected state if active
   const displayProjects = useMemo(() => {
@@ -198,7 +194,7 @@ export default function IndiaGisMap({
       const pState = normalizeStateName(p.state || '').toLowerCase();
       return pState === norm || pState.includes(norm) || norm.includes(pState);
     });
-    return filtered.length > 0 ? filtered : allProjects;
+    return filtered;
   }, [allProjects, selectedState]);
 
   // State-level aggregation dictionary for State Hover Tooltip

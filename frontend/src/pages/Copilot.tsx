@@ -68,15 +68,15 @@ export default function Copilot() {
     {
       id: 'welcome',
       sender: 'assistant',
-      content: `### Welcome to INFRALYTIX AI Governance Copilot
-**National Decision Support System for MoSPI, PM GatiShakti & Union Line Ministries**
+      content: `Hello! I'm your INFRALYTIX AI assistant.
 
-I am your **Offline Deterministic Copilot**, directly interfaced with the live national database of monitored infrastructure projects. All responses are grounded in real project data.
+I can help you explore India's infrastructure projects, understand delays and costs, and find which projects need attention.
 
-#### Key Queries:
-1. **Root Cause Analysis** — *"Why is Dholpur Sirmuttra extension classified as Critical risk?"*
-2. **Intervention Recommendations** — *"What are the recommended recovery actions for stalled rail corridors?"*
-3. **Portfolio Health** — *"Summarize state-wise risk concentration in Maharashtra."*`,
+Here are a few questions you can ask:
+• "Give me a quick portfolio overview"
+• "Which projects need urgent attention?"
+• "Tell me about PRJ1459"
+• "Why is Rajasthan risk increasing?"`,
       timestamp: 'Now',
     },
   ]);
@@ -130,7 +130,7 @@ I am your **Offline Deterministic Copilot**, directly interfaced with the live n
       const fallbackMsg: Message = {
         id: `assist-fallback-${Date.now()}`,
         sender: 'assistant',
-        content: `**Query Analysis for:** "${text}"\n\nBased on current portfolio observations:\n- **Monitored Projects:** 7,411 baseline records with 1,609 active in the current cycle.\n- **Primary Bottlenecks:** Right of Way (RoW) acquisition delays account for 42% of timeline slippages across road and rail corridors.\n- **Recommended Action:** Convene State-Level Empowered Committee under PM GatiShakti coordination protocol.`,
+        content: `I could not connect to the server right now. Please make sure the backend is running.`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
       setMessages((prev) => [...prev, fallbackMsg]);
@@ -146,14 +146,14 @@ I am your **Offline Deterministic Copilot**, directly interfaced with the live n
         <div>
           <div className="flex items-center gap-2 mb-1.5">
             <span className="px-2.5 py-1 rounded text-xs font-bold uppercase tracking-wider bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/60">
-              Offline Local RAG Core
+              AI Copilot
             </span>
           </div>
           <h1 className="text-3xl sm:text-[36px] font-black tracking-tight text-slate-900 dark:text-white">
-            AI Decision Copilot
+            AI Assistant
           </h1>
           <p className="text-[15px] text-slate-500 dark:text-slate-400 mt-1">
-            Deterministic portfolio intelligence grounded in live ministerial records &amp; predictive telemetry
+            Ask questions about infrastructure projects, delays, budgets, and risk in clear, simple English
           </p>
         </div>
       </div>
@@ -220,7 +220,7 @@ I am your **Offline Deterministic Copilot**, directly interfaced with the live n
               <Loader2 className="w-4 h-4 animate-spin" />
             </div>
             <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#111A2E] border border-slate-200 dark:border-[#1E2B45] text-xs text-slate-500">
-              Analyzing ministerial telemetry and computing grounded response...
+              Looking up project information and preparing an answer...
             </div>
           </div>
         )}
